@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-auth-page',
@@ -18,33 +19,25 @@ export class AuthPageComponent {
   error = '';
 
   constructor(
-    private fb: FormBuilder,
-    private authService: AuthService
+    private fb: FormBuilder,          // ⭐ FIXED
+    private authService: AuthService,
+    private router: Router
   ) {}
 
   ngOnInit() {
 
     this.loginForm = this.fb.group({
-
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required]
-
     });
 
     this.registerForm = this.fb.group({
-
-  name: ['', Validators.required],
-
-  email: ['', [Validators.required, Validators.email]],
-
-  password: ['', Validators.required],
-
-  role: ['BUYER', Validators.required],
-
-  businessName: ['']   // ADD THIS LINE
-
-});
-
+      name: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', Validators.required],
+      role: ['BUYER', Validators.required],
+      businessName: ['']
+    });
   }
 
   switchTab(val:boolean){
@@ -68,17 +61,25 @@ export class AuthPageComponent {
           this.message = "Login successful";
           this.error = '';
 
+          // ⭐ ROLE BASED REDIRECT
+          const role = this.registerForm?.value?.role
+                       || 'BUYER';
+
+          if(role === 'SELLER'){
+            this.router.navigateByUrl('/seller/dashboard');
+          }
+          else{
+            this.router.navigateByUrl('/buyer/dashboard');
+          }
+
         },
 
         error: (err:any) => {
-
           this.error = err.error;
           this.message = '';
-
         }
 
       });
-
   }
 
   register(){
@@ -105,9 +106,6 @@ export class AuthPageComponent {
           this.message = '';
 
         }
-
       });
-
   }
-
 }
