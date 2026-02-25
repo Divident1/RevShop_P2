@@ -7,7 +7,8 @@ public class ResetPasswordRequest {
 
     public ResetPasswordRequest() {}
 
-    public String getToken() {
+    public String getToken()
+    {
         return token;
     }
 
