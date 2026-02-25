@@ -24,11 +24,24 @@ public class SecurityConfig {
                 )
                 .cors(cors -> {});
 
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/orders/**").permitAll()
+                        .requestMatchers("/api/reviews/**").permitAll()
+                        .requestMatchers("/api/favorites/**").permitAll()
+
+                        .anyRequest().authenticated()
+
+                )
+
+                .cors(cors -> {
+                });
+
         return http.build();
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
+
         return new BCryptPasswordEncoder();
     }
 }
