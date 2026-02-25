@@ -32,4 +32,6 @@ public class ProductRequest {
     @PositiveOrZero
     private Integer quantity;
 
+    private Long sellerId;
+
 }

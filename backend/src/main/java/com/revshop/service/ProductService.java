@@ -9,13 +9,13 @@ import java.util.List;
 
 public interface ProductService {
 
-    Product addProduct(ProductRequest request);
+    Product addProduct(ProductRequest request,Long loggedInSellerId);
 
-    Product updateProduct(Long id, ProductUpdateRequest request);
+    Product updateProduct(Long id, ProductUpdateRequest request,Long loggedInSellerId);
 
-    void deleteProduct(Long id);
+    void deleteProduct(Long id,Long loggedInSellerId);
 
-    Product setStockThreshold(Long productId, ThresholdRequest request);
+    Product setStockThreshold(Long productId, ThresholdRequest request,Long loggedInSellerId);
 
     List<Product> getAllProducts();
 }

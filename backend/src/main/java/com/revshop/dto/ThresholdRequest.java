@@ -9,4 +9,5 @@ public class ThresholdRequest {
     @NotNull
     private Integer threshold;
 
+    private Long sellerId;
 }

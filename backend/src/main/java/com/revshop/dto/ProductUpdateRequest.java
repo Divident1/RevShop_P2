@@ -31,4 +31,6 @@ public class ProductUpdateRequest {
     @NotNull
     @PositiveOrZero
     private Integer quantity;
+
+    private Long sellerId;
 }

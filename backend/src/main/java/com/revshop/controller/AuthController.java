@@ -1,6 +1,7 @@
 package com.revshop.controller;
 
 import com.revshop.dto.*;
+import com.revshop.model.User;
 import com.revshop.service.AuthService;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +22,8 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequest request) {
+    public User login(@RequestBody LoginRequest request) {
+
         return authService.login(request);
     }
 

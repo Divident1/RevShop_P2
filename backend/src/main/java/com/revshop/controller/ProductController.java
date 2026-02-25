@@ -25,7 +25,7 @@ public class ProductController {
     public ResponseEntity<Product> addProduct(
             @Valid @RequestBody ProductRequest request) {
 
-        Product product = productService.addProduct(request);
+        Product product = productService.addProduct(request, request.getSellerId());
         return new ResponseEntity<>(product, HttpStatus.CREATED);
     }
     // UPDATE PRODUCT
@@ -34,17 +34,18 @@ public class ProductController {
             @PathVariable Long id,
             @Valid @RequestBody ProductUpdateRequest request) {
 
-        Product updated = productService.updateProduct(id, request);
+        Product updated = productService.updateProduct(id, request,request.getSellerId());
         return ResponseEntity.ok(updated); // 200
     }
 
     // SOFT DELETE PRODUCT
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(
-            @PathVariable Long id) {
+            @PathVariable Long id,
+            @RequestParam(required = false) Long sellerId) {
 
-        productService.deleteProduct(id);
-        return ResponseEntity.noContent().build(); // 204
+        productService.deleteProduct(id,sellerId);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}/threshold")
@@ -52,13 +53,13 @@ public class ProductController {
             @PathVariable Long id,
             @Valid @RequestBody ThresholdRequest request) {
 
-        Product updated = productService.setStockThreshold(id, request);
+        Product updated = productService.setStockThreshold(id, request, request.getSellerId());
         return ResponseEntity.ok(updated);
     }
 
     @GetMapping
     public ResponseEntity<List<Product>> getAllProducts() {
-        List<Product> products = productService.getAllProducts();
-        return ResponseEntity.ok(products);
+
+        return ResponseEntity.ok(productService.getAllProducts());
     }
 }

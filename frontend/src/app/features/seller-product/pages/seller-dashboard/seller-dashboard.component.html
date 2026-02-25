@@ -6,4 +6,9 @@
   (onSaved)="onSaved()">
 </app-product-form>
 
-<app-product-list (editProduct)="edit($event)"></app-product-list>
+<app-product-list
+  [products]="products"
+  (editProduct)="edit($event)"
+  (productDeleted)="loadProducts()">
+
+</app-product-list>

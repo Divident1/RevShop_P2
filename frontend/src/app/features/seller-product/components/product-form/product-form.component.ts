@@ -1,6 +1,7 @@
 import { Component, Input, OnChanges, Output, EventEmitter } from '@angular/core';
 import { ProductService } from '../../../../core/services/product.service';
 import { Product } from '../../models/product.model';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-product-form',
@@ -14,33 +15,39 @@ export class ProductFormComponent implements OnChanges {
 
   form: Product = this.emptyForm();
 
-  constructor(private productService: ProductService) {}
+  constructor(private productService: ProductService,private authService:AuthService) {}
 
   ngOnChanges() {
     // Copy input product to local form or reset if adding
     this.form = this.product ? { ...this.product } : this.emptyForm();
   }
 
-  save() {
-    if (this.form.id) {
-      // Update existing product
-      this.productService.updateProduct(this.form.id, this.form)
-        .subscribe(() => {
-          alert('Updated!');
-          this.onSaved.emit(); // tell list to refresh
-        });
-    } else {
-      // Add new product
-      this.productService.addProduct(this.form)
-        .subscribe(() => {
-          alert('Added!');
-          this.onSaved.emit(); // tell list to refresh
-        });
-    }
+ save() {
+     if (!this.authService.currentUser) {
+       alert("Please login first!");
+       return;
+     }
 
-    // Reset the form after save
-    this.form = this.emptyForm();
-  }
+     // Ensure sellerId is always current user
+     this.form.sellerId = this.authService.currentUser.id;
+
+     if (this.form.id && this.form.id > 0) {
+       // Update existing product
+       this.productService.updateProduct(this.form.id, this.form)
+         .subscribe(() => this.onSaveSuccess('Updated!'));
+     } else {
+       // Add new product
+       this.productService.addProduct(this.form)
+       .subscribe(() => this.onSaveSuccess('Added!'));
+     }
+   }
+
+  private onSaveSuccess(message: string) {
+     alert(message);
+     this.onSaved.emit();
+     this.form = this.emptyForm();
+   }
+
 
   private emptyForm(): Product {
     return {
@@ -51,7 +58,7 @@ export class ProductFormComponent implements OnChanges {
       mrp: 0,
       category: '',
       quantity: 0,
-      sellerId: 1,
+      sellerId: 0,
       discountPercentage: 0,
       stockThreshold: 5
     };
