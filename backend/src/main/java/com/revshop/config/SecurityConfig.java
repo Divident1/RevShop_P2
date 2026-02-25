@@ -26,7 +26,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/reviews/**").permitAll()
                         .requestMatchers("/api/favorites/**").permitAll()
 
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
 
                 )
 

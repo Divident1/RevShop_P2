@@ -1,7 +1,6 @@
 package com.revshop.controller;
 
-import com.revshop.dto.OrderRequest;
-import com.revshop.dto.OrderResponse;
+import com.revshop.dto.*;
 import com.revshop.model.OrderStatus;
 import com.revshop.service.OrderService;
 import org.springframework.http.HttpStatus;
@@ -20,6 +19,8 @@ public class OrderController {
     public OrderController(OrderService orderService) {
         this.orderService = orderService;
     }
+
+    // ── Gotam's Endpoints (Order Management) ───────────────────────────────
 
     @PostMapping
     public ResponseEntity<OrderResponse> placeOrder(@RequestBody OrderRequest request) {
@@ -53,5 +54,17 @@ public class OrderController {
     public ResponseEntity<String> cancelOrder(@PathVariable Long orderId) {
         orderService.cancelOrder(orderId);
         return ResponseEntity.ok("Order cancelled successfully");
+    }
+
+    // ── Anusha's Endpoints (Checkout & Payment) ───────────────────────────
+
+    @PostMapping("/checkout")
+    public ResponseEntity<OrderResponseDto> checkout(@RequestBody CheckoutRequestDto request) {
+        return ResponseEntity.ok(orderService.checkout(request));
+    }
+
+    @PostMapping("/payment")
+    public ResponseEntity<OrderResponseDto> payment(@RequestBody PaymentRequestDto request) {
+        return ResponseEntity.ok(orderService.processPayment(request));
     }
 }

@@ -1,17 +1,18 @@
 package com.revshop.service.impl;
 
-import com.revshop.dto.OrderRequest;
-import com.revshop.dto.OrderResponse;
+import com.revshop.dto.*;
 import com.revshop.model.*;
 import com.revshop.repository.OrderRepository;
 import com.revshop.repository.ProductRepository;
 import com.revshop.repository.UserRepository;
 import com.revshop.service.OrderService;
+import com.revshop.util.OrderUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,6 +29,10 @@ public class OrderServiceImpl implements OrderService {
         this.userRepository = userRepository;
         this.productRepository = productRepository;
     }
+
+    // ══════════════════════════════════════════════════════════════════════
+    // Gotam's Order Management Methods
+    // ══════════════════════════════════════════════════════════════════════
 
     @Override
     @Transactional
@@ -134,7 +139,75 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(order);
     }
 
+    // ══════════════════════════════════════════════════════════════════════
+    // Anusha's Checkout & Payment Methods
+    // ══════════════════════════════════════════════════════════════════════
+
+    @Override
+    public OrderResponseDto checkout(CheckoutRequestDto request) {
+
+        User buyer = userRepository.findById(Long.parseLong(request.getUserId()))
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Order order = new Order();
+        order.setBuyer(buyer);
+        order.setShippingAddress(request.getShippingAddress());
+        order.setBillingAddress(request.getBillingAddress());
+        order.setTotalAmount(request.getTotalAmount());
+        order.setStatus(OrderStatus.PENDING);
+        order.setPaymentStatus("PENDING");
+        order.setOrderDate(LocalDateTime.now());
+
+        Order savedOrder = orderRepository.save(order);
+
+        return OrderResponseDto.builder()
+                .orderId(String.valueOf(savedOrder.getId()))
+                .message("Checkout successful")
+                .paymentStatus("PENDING")
+                .build();
+    }
+
+    @Override
+    public OrderResponseDto processPayment(PaymentRequestDto request) {
+
+        Order order = orderRepository.findById(Long.parseLong(request.getOrderId()))
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        boolean paymentSuccess = simulatePayment();
+
+        if (paymentSuccess) {
+            order.setPaymentMethod(request.getPaymentMethod());
+            order.setPaymentStatus("SUCCESS");
+            order.setStatus(OrderStatus.CONFIRMED);
+            orderRepository.save(order);
+
+            return OrderResponseDto.builder()
+                    .orderId(String.valueOf(order.getId()))
+                    .message("Payment Successful. Order Confirmed")
+                    .paymentStatus("SUCCESS")
+                    .build();
+        } else {
+            order.setPaymentStatus("FAILED");
+            orderRepository.save(order);
+
+            return OrderResponseDto.builder()
+                    .orderId(String.valueOf(order.getId()))
+                    .message("Payment Failed")
+                    .paymentStatus("FAILED")
+                    .build();
+        }
+    }
+
+    // simulate success / failure
+    private boolean simulatePayment() {
+        Random random = new Random();
+        return random.nextBoolean();
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
     // Helper: Map Order entity to OrderResponse DTO
+    // ══════════════════════════════════════════════════════════════════════
+
     private OrderResponse mapToResponse(Order order) {
 
         OrderResponse response = new OrderResponse();

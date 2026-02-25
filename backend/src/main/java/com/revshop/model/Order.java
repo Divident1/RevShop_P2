@@ -1,12 +1,11 @@
 package com.revshop.model;
 
-import jakarta.persistence.*;
+import com.fasterxml.jackson.import akarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
-@Table(name = "orders")
+@Entity@Table(name = "orders")
 public class Order {
 
     @Id
@@ -15,9 +14,9 @@ public class Order {
 
     @ManyToOne
     @JoinColumn(name = "buyer_id", nullable = false)
+    @JsonIgnoreProperties({"password", "resetToken", "orders"})
     private User buyer;
-
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+     @OneToMn(mappedBy    @JsonIgnoreProperties("order")   // prevent OrderItem → Order → OrderItem loop
     private List<OrderItem> orderItems = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
@@ -26,8 +25,12 @@ public class Order {
     private double totalAmount;
 
     private String shippingAddress;
+    
+    private String billingAddress; // From Anusha's module
 
     private String paymentMethod;
+    
+    private String paymentStatus = "PENDING"; // From Anusha's module
 
     private LocalDateTime orderDate = LocalDateTime.now();
 
@@ -86,12 +89,28 @@ public class Order {
         this.shippingAddress = shippingAddress;
     }
 
+    public String getBillingAddress() {
+        return billingAddress;
+    }
+
+    public void setBillingAddress(String billingAddress) {
+        this.billingAddress = billingAddress;
+    }
+
     public String getPaymentMethod() {
         return paymentMethod;
     }
 
     public void setPaymentMethod(String paymentMethod) {
         this.paymentMethod = paymentMethod;
+    }
+
+    public String getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(String paymentStatus) {
+        this.paymentStatus = paymentStatus;
     }
 
     public LocalDateTime getOrderDate() {
@@ -105,9 +124,8 @@ public class Order {
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
+        
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
     }
 
     // Helper method
