@@ -22,6 +22,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/orders/**").permitAll()
                         .requestMatchers("/api/reviews/**").permitAll()
                         .requestMatchers("/api/favorites/**").permitAll()
+                        .requestMatchers("/api/cart/**").permitAll()
                         .anyRequest().permitAll())
                 .cors(cors -> {
                 });

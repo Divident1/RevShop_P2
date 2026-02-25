@@ -1,11 +1,13 @@
 package com.revshop.model;
 
-import com.fasterxml.jackson.import akarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity@Table(name = "orders")
+@Entity
+@Table(name = "orders")
 public class Order {
 
     @Id
@@ -14,9 +16,10 @@ public class Order {
 
     @ManyToOne
     @JoinColumn(name = "buyer_id", nullable = false)
-    @JsonIgnoreProperties({"password", "resetToken", "orders"})
+    @JsonIgnoreProperties({ "password", "resetToken", "orders" })
     private User buyer;
-     @OneToMn(mappedBy    @JsonIgnoreProperties("order")   // prevent OrderItem → Order → OrderItem loop
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("order")
     private List<OrderItem> orderItems = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
@@ -25,11 +28,11 @@ public class Order {
     private double totalAmount;
 
     private String shippingAddress;
-    
+
     private String billingAddress; // From Anusha's module
 
     private String paymentMethod;
-    
+
     private String paymentStatus = "PENDING"; // From Anusha's module
 
     private LocalDateTime orderDate = LocalDateTime.now();
@@ -124,8 +127,9 @@ public class Order {
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
-        
 
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     // Helper method

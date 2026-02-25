@@ -19,5 +19,5 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "AND p.isActive = true")
     List<Product> searchProducts(@Param("keyword") String keyword);
 
-    List<Product> findBySellerId(Long sellerId);
+    List<Product> findBySeller_Id(Long sellerId);
 }

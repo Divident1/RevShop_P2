@@ -16,7 +16,7 @@ public class SellerProductServiceImpl implements SellerProductService {
     private final UserRepository userRepository;
 
     public SellerProductServiceImpl(ProductRepository productRepository,
-                                    UserRepository userRepository) {
+            UserRepository userRepository) {
         this.productRepository = productRepository;
         this.userRepository = userRepository;
     }
@@ -28,8 +28,7 @@ public class SellerProductServiceImpl implements SellerProductService {
                 p.getDescription(),
                 p.getPrice(),
                 p.getQuantity(),
-                p.getRating()
-        );
+                p.getRating());
     }
 
     @Override
@@ -82,9 +81,10 @@ public class SellerProductServiceImpl implements SellerProductService {
     @Override
     public List<ProductDto> getSellerProducts(Long sellerId) {
 
-        return productRepository.findBySellerId(sellerId)
+        List<ProductDto> products = productRepository.findBySeller_Id(sellerId)
                 .stream()
                 .map(this::map)
                 .collect(Collectors.toList());
+        return products;
     }
 }
