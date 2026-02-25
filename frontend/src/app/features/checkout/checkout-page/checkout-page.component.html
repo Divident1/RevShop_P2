@@ -1,0 +1,27 @@
+<h2>Checkout</h2>
+
+<input placeholder="User ID"
+       [(ngModel)]="order.userId">
+
+<br>
+
+<input placeholder="Shipping Address"
+       [(ngModel)]="order.shippingAddress">
+
+<br>
+
+<input placeholder="Billing Address"
+       [(ngModel)]="order.billingAddress">
+
+<br>
+
+<input placeholder="Total Amount"
+       [(ngModel)]="order.totalAmount">
+
+<br><br>
+
+<button (click)="placeOrder()">
+
+  Place Order
+
+</button>

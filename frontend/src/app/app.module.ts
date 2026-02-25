@@ -6,10 +6,16 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AuthPageComponent } from './features/auth/auth-page/auth-page.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { CheckoutPageComponent } from './features/checkout/checkout-page/checkout-page.component';
+import { PaymentPageComponent } from './features/payment/payment-page/payment-page.component';
+import { OrderConfirmationComponent } from './features/order-confirmation/order-confirmation.component';
 @NgModule({
   declarations: [
     AppComponent,
-    AuthPageComponent
+    AuthPageComponent,
+    CheckoutPageComponent,
+    PaymentPageComponent,
+    OrderConfirmationComponent
   ],
   imports: [
     BrowserModule,
@@ -21,4 +27,5 @@ import { ReactiveFormsModule } from '@angular/forms';
   providers: [],
   bootstrap: [AppComponent]
 })
+
 export class AppModule { }

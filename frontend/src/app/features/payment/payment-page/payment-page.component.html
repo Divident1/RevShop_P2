@@ -1,0 +1,19 @@
+<h2>Payment</h2>
+
+<select [(ngModel)]="paymentMethod">
+
+  <option>COD</option>
+
+  <option>CREDIT_CARD</option>
+
+  <option>DEBIT_CARD</option>
+
+</select>
+
+<br><br>
+
+<button (click)="pay()">
+
+  Pay Now
+
+</button>
