@@ -2,6 +2,7 @@ package com.revshop.controller;
 
 import com.revshop.dto.*;
 import com.revshop.service.AuthService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin(origins = "http://localhost:4200")
@@ -26,14 +27,17 @@ public class AuthController {
     }
 
     @PostMapping("/forgot-password")
-    public String forgotPassword(@RequestBody ForgotPasswordRequest request) {
-        authService.forgotPassword(request);
-        return "Reset token generated";
+    public ResponseEntity<?> forgotPassword(
+            @RequestBody ForgotPasswordRequest request) {
+
+        return ResponseEntity.ok(authService.forgotPassword(request));
     }
 
+
     @PostMapping("/reset-password")
-    public String resetPassword(@RequestBody ResetPasswordRequest request) {
-        authService.resetPassword(request);
-        return "Password updated successfully";
+    public ResponseEntity<?> resetPassword(
+            @RequestBody ResetPasswordRequest request) {
+
+        return ResponseEntity.ok(authService.resetPassword(request));
     }
 }

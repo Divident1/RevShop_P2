@@ -8,9 +8,10 @@ public interface AuthService {
 
     String login(LoginRequest request);
 
-    void forgotPassword(ForgotPasswordRequest request);
+    String forgotPassword(ForgotPasswordRequest request);
 
-    void resetPassword(ResetPasswordRequest request);
+    String resetPassword(ResetPasswordRequest request);
+
 
 }
 //--> commit each service / controller one by one.
