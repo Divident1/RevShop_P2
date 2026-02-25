@@ -75,28 +75,16 @@ public class AuthServiceImpl implements AuthService {
         return "Reset token generated: " + token;
     }
 
-
     @Override
-    public String resetPassword(ResetPasswordRequest request) {
+    public String resetPasswordDirect(ResetPasswordRequest request) {
 
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Email not found"));
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + request.getEmail()));
 
-
-        if (user.getResetToken() == null ||
-                !user.getResetToken().equals(request.getToken())) {
-
-            throw new RuntimeException("Invalid reset token");
-        }
-
-
-        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-
-
-        user.setResetToken(null);
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         userRepository.save(user);
 
-        return "Password reset successful";
+        return "Password reset successfully";
     }
 }
