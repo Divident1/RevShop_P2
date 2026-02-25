@@ -11,7 +11,7 @@ export class FavoritesComponent implements OnInit {
     favorites: Favorite[] = [];
     loading = true;
     errorMessage = '';
-    buyerId = 1; // TODO: Get from auth service
+    buyerId = 3; // Matches Pavan Kalyan from DataSeeder
 
     constructor(private favoriteService: FavoriteService) { }
 

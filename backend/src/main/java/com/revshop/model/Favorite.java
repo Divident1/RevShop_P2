@@ -1,5 +1,6 @@
 package com.revshop.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -15,6 +16,7 @@ public class Favorite {
 
     @ManyToOne
     @JoinColumn(name = "buyer_id", nullable = false)
+    @JsonIgnoreProperties({ "password", "resetToken" })
     private User buyer;
 
     @ManyToOne
