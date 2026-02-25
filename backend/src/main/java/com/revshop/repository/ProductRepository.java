@@ -16,4 +16,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
             "AND p.active = true")
     List<Product> searchProducts(@Param("keyword") String keyword);
+
+    List<Product> findBySellerId(Long sellerId);
 }
