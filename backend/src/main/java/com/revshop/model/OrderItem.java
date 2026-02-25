@@ -1,5 +1,6 @@
 package com.revshop.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 @Entity
@@ -12,6 +13,7 @@ public class OrderItem {
 
     @ManyToOne
     @JoinColumn(name = "order_id", nullable = false)
+    @JsonIgnoreProperties("orderItems")  // prevent back-loop to Order
     private Order order;
 
     @ManyToOne

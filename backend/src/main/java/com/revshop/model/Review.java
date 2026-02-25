@@ -1,5 +1,6 @@
 package com.revshop.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -13,10 +14,12 @@ public class Review {
 
     @ManyToOne
     @JoinColumn(name = "buyer_id", nullable = false)
+    @JsonIgnoreProperties({ "password", "resetToken" })
     private User buyer;
 
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
+    @JsonIgnoreProperties({ "seller" })
     private Product product;
 
     @Column(nullable = false)

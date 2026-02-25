@@ -1,5 +1,6 @@
 package com.revshop.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -15,9 +16,11 @@ public class Order {
 
     @ManyToOne
     @JoinColumn(name = "buyer_id", nullable = false)
+    @JsonIgnoreProperties({"password", "resetToken", "orders"})
     private User buyer;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("order")   // prevent OrderItem → Order → OrderItem loop
     private List<OrderItem> orderItems = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
