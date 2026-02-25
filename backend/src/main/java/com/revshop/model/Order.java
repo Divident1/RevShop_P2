@@ -1,11 +1,13 @@
 package com.revshop.model;
 
-import com.fasterxml.jackson.import akarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity@Table(name = "orders")
+@Entity
+@Table(name = "orders")
 public class Order {
 
     @Id
@@ -14,33 +16,27 @@ public class Order {
 
     @ManyToOne
     @JoinColumn(name = "buyer_id", nullable = false)
-    @JsonIgnoreProperties({"password", "resetToken", "orders"})
+    @JsonIgnoreProperties({ "password", "resetToken", "orders" })
     private User buyer;
-     @OneToMn(mappedBy    @JsonIgnoreProperties("order")   // prevent OrderItem → Order → OrderItem loop
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("order")
     private List<OrderItem> orderItems = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status = OrderStatus.PENDING;
 
     private double totalAmount;
-
     private String shippingAddress;
-    
-    private String billingAddress; // From Anusha's module
-
+    private String billingAddress;
     private String paymentMethod;
-    
-    private String paymentStatus = "PENDING"; // From Anusha's module
-
+    private String paymentStatus = "PENDING";
     private LocalDateTime orderDate = LocalDateTime.now();
-
     private LocalDateTime updatedAt;
 
-    // Constructors
     public Order() {
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -124,11 +120,11 @@ public class Order {
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
-        
 
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
-    // Helper method
     public void addOrderItem(OrderItem item) {
         orderItems.add(item);
         item.setOrder(this);

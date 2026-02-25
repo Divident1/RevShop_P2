@@ -57,7 +57,7 @@ public class ProductServiceImpl implements ProductService {
 
         Long sellerId = getCurrentUserId();
 
-        if (!product.getSellerId().equals(sellerId)) {
+        if (product.getSellerId() != null && !product.getSellerId().equals(sellerId)) {
             throw new ForbiddenException("You are not the owner of this product");
         }
 
@@ -87,11 +87,11 @@ public class ProductServiceImpl implements ProductService {
 
         Long sellerId = getCurrentUserId();
 
-        if (!product.getSellerId().equals(sellerId)) {
+        if (product.getSellerId() != null && !product.getSellerId().equals(sellerId)) {
             throw new ForbiddenException("You are not the owner of this product");
         }
 
-        product.setIsActive(false); // soft delete
+        product.setActive(false); // soft delete
         productRepository.save(product);
     }
 
@@ -103,7 +103,7 @@ public class ProductServiceImpl implements ProductService {
 
         Long sellerId = getCurrentUserId();
 
-        if (!product.getSellerId().equals(sellerId)) {
+        if (product.getSellerId() != null && !product.getSellerId().equals(sellerId)) {
             throw new ForbiddenException("Only product owner can set threshold");
         }
 
@@ -135,7 +135,7 @@ public class ProductServiceImpl implements ProductService {
     public Page<ProductDto> getProductsByCategory(Long categoryId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return productRepository
-                .findByCategoryIdAndIsActiveTrue(categoryId, pageable)
+                .findByCategory_IdAndActiveTrue(categoryId, pageable)
                 .map(this::map);
     }
 
