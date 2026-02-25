@@ -10,6 +10,9 @@ import { ReactiveFormsModule } from '@angular/forms';
 // import { ProductFormComponent } from './features/seller-product/components/product-form/product-form.component';
 import { SellerProductModule } from './features/seller-product/seller-product.module';
 
+import { OrderListComponent } from './features/orders/order-list/order-list.component';
+import { ProductReviewsComponent } from './features/reviews/product-reviews/product-reviews.component';
+import { FavoritesComponent } from './features/favorites/favorites/favorites.component';
 
 @NgModule({
   declarations: [
@@ -17,6 +20,10 @@ import { SellerProductModule } from './features/seller-product/seller-product.mo
     AuthPageComponent
 //     SellerDashboardComponent,
 //     ProductFormComponent
+    AuthPageComponent,
+    OrderListComponent,
+    ProductReviewsComponent,
+    FavoritesComponent
   ],
   imports: [
     BrowserModule,

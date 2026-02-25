@@ -1,0 +1,165 @@
+package com.revshop.service.impl;
+
+import com.revshop.dto.OrderRequest;
+import com.revshop.dto.OrderResponse;
+import com.revshop.model.*;
+import com.revshop.repository.OrderRepository;
+import com.revshop.repository.ProductRepository;
+import com.revshop.repository.UserRepository;
+import com.revshop.service.OrderService;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+public class OrderServiceImpl implements OrderService {
+
+    private final OrderRepository orderRepository;
+    private final UserRepository userRepository;
+    private final ProductRepository productRepository;
+
+    public OrderServiceImpl(OrderRepository orderRepository,
+            UserRepository userRepository,
+            ProductRepository productRepository) {
+        this.orderRepository = orderRepository;
+        this.userRepository = userRepository;
+        this.productRepository = productRepository;
+    }
+
+    @Override
+    @Transactional
+    public OrderResponse placeOrder(OrderRequest request) {
+
+        User buyer = userRepository.findById(request.getBuyerId())
+                .orElseThrow(() -> new RuntimeException("Buyer not found"));
+
+        Order order = new Order();
+        order.setBuyer(buyer);
+        order.setShippingAddress(request.getShippingAddress());
+        order.setPaymentMethod(request.getPaymentMethod());
+        order.setStatus(OrderStatus.PENDING);
+        order.setOrderDate(LocalDateTime.now());
+
+        double totalAmount = 0;
+
+        for (OrderRequest.OrderItemRequest itemReq : request.getItems()) {
+
+            Product product = productRepository.findById(itemReq.getProductId())
+                    .orElseThrow(() -> new RuntimeException("Product not found: " + itemReq.getProductId()));
+
+            if (product.getQuantity() < itemReq.getQuantity()) {
+                throw new RuntimeException("Insufficient stock for product: " + product.getName());
+            }
+
+            OrderItem orderItem = new OrderItem();
+            orderItem.setProduct(product);
+            orderItem.setQuantity(itemReq.getQuantity());
+            orderItem.setPriceAtPurchase(product.getPrice());
+
+            order.addOrderItem(orderItem);
+
+            totalAmount += orderItem.getSubtotal();
+
+            // Reduce stock
+            product.setQuantity(product.getQuantity() - itemReq.getQuantity());
+            productRepository.save(product);
+        }
+
+        order.setTotalAmount(totalAmount);
+        Order savedOrder = orderRepository.save(order);
+
+        return mapToResponse(savedOrder);
+    }
+
+    @Override
+    public List<OrderResponse> getOrdersByBuyer(Long buyerId) {
+        return orderRepository.findByBuyerIdOrderByOrderDateDesc(buyerId)
+                .stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<OrderResponse> getOrdersBySeller(Long sellerId) {
+        return orderRepository.findByOrderItems_Product_Seller_IdOrderByOrderDateDesc(sellerId)
+                .stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public OrderResponse getOrderById(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+        return mapToResponse(order);
+    }
+
+    @Override
+    @Transactional
+    public OrderResponse updateOrderStatus(Long orderId, OrderStatus status) {
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        order.setStatus(status);
+        order.setUpdatedAt(LocalDateTime.now());
+
+        Order updatedOrder = orderRepository.save(order);
+        return mapToResponse(updatedOrder);
+    }
+
+    @Override
+    @Transactional
+    public void cancelOrder(Long orderId) {
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        if (order.getStatus() == OrderStatus.SHIPPED || order.getStatus() == OrderStatus.DELIVERED) {
+            throw new RuntimeException("Cannot cancel order that is already shipped or delivered");
+        }
+
+        // Restore stock
+        for (OrderItem item : order.getOrderItems()) {
+            Product product = item.getProduct();
+            product.setQuantity(product.getQuantity() + item.getQuantity());
+            productRepository.save(product);
+        }
+
+        order.setStatus(OrderStatus.CANCELLED);
+        order.setUpdatedAt(LocalDateTime.now());
+        orderRepository.save(order);
+    }
+
+    // Helper: Map Order entity to OrderResponse DTO
+    private OrderResponse mapToResponse(Order order) {
+
+        OrderResponse response = new OrderResponse();
+        response.setOrderId(order.getId());
+        response.setBuyerName(order.getBuyer().getName());
+        response.setBuyerEmail(order.getBuyer().getEmail());
+        response.setStatus(order.getStatus());
+        response.setTotalAmount(order.getTotalAmount());
+        response.setShippingAddress(order.getShippingAddress());
+        response.setPaymentMethod(order.getPaymentMethod());
+        response.setOrderDate(order.getOrderDate());
+
+        List<OrderResponse.OrderItemResponse> items = order.getOrderItems().stream()
+                .map(item -> {
+                    OrderResponse.OrderItemResponse itemResponse = new OrderResponse.OrderItemResponse();
+                    itemResponse.setProductId(item.getProduct().getId());
+                    itemResponse.setProductName(item.getProduct().getName());
+                    itemResponse.setQuantity(item.getQuantity());
+                    itemResponse.setPriceAtPurchase(item.getPriceAtPurchase());
+                    itemResponse.setSubtotal(item.getSubtotal());
+                    return itemResponse;
+                })
+                .collect(Collectors.toList());
+
+        response.setItems(items);
+        return response;
+    }
+}
