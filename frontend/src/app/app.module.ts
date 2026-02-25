@@ -26,6 +26,9 @@ import { ProductDetailsComponent } from './features/buyer/product-details/produc
 import { SellerProductsComponent } from './features/seller/seller-products/seller-products.component';
 import { AddProductComponent } from './features/seller/add-product/add-product.component';
 
+// Pavan's components
+import { CartComponent } from './features/cart/cart-page/cart.component';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -40,7 +43,8 @@ import { AddProductComponent } from './features/seller/add-product/add-product.c
     ProductSearchComponent,
     ProductDetailsComponent,
     SellerProductsComponent,
-    AddProductComponent
+    AddProductComponent,
+    CartComponent
   ],
   imports: [
     BrowserModule,

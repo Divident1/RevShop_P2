@@ -18,6 +18,9 @@ import { ProductDetailsComponent } from './features/buyer/product-details/produc
 import { SellerProductsComponent } from './features/seller/seller-products/seller-products.component';
 import { AddProductComponent } from './features/seller/add-product/add-product.component';
 
+// Pavan's components
+import { CartComponent } from './features/cart/cart-page/cart.component';
+
 const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'login', component: AuthPageComponent },
@@ -46,7 +49,10 @@ const routes: Routes = [
     loadChildren: () =>
       import('./features/seller-product/seller-product.module')
         .then(m => m.SellerProductModule)
-  }
+  },
+
+  // ===== PAVAN: Cart Management =====
+  { path: 'cart', component: CartComponent }
 ];
 
 @NgModule({
