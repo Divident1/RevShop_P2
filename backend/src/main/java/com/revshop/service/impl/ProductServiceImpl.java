@@ -16,6 +16,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import com.revshop.security.CustomerUserDetails;
 
+import java.util.List;
+
 @Service
 public class ProductServiceImpl implements ProductService {
 
@@ -131,5 +133,9 @@ public class ProductServiceImpl implements ProductService {
 //        return userDetails.getId();
 
         return 1L;
+    }
+
+    public List<Product> getAllProducts() {
+        return productRepository.findAll();
     }
 }

@@ -6,17 +6,25 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AuthPageComponent } from './features/auth/auth-page/auth-page.component';
 import { ReactiveFormsModule } from '@angular/forms';
+// import { SellerDashboardComponent } from './features/seller-product/pages/seller-dashboard/seller-dashboard.component';
+// import { ProductFormComponent } from './features/seller-product/components/product-form/product-form.component';
+import { SellerProductModule } from './features/seller-product/seller-product.module';
+
+
 @NgModule({
   declarations: [
     AppComponent,
     AuthPageComponent
+//     SellerDashboardComponent,
+//     ProductFormComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     FormsModule,
     HttpClientModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    SellerProductModule
   ],
   providers: [],
   bootstrap: [AppComponent]

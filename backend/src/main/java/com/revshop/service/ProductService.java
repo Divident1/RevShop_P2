@@ -5,6 +5,8 @@ import com.revshop.dto.ProductUpdateRequest;
 import com.revshop.dto.ThresholdRequest;
 import com.revshop.model.Product;
 
+import java.util.List;
+
 public interface ProductService {
 
     Product addProduct(ProductRequest request);
@@ -14,4 +16,6 @@ public interface ProductService {
     void deleteProduct(Long id);
 
     Product setStockThreshold(Long productId, ThresholdRequest request);
+
+    List<Product> getAllProducts();
 }
