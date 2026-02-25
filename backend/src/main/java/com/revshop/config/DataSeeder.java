@@ -99,7 +99,7 @@ public class DataSeeder implements CommandLineRunner {
         p1.setCategory(electronics);
         p1.setCategoryName("Electronics");
         p1.setSeller(seller);
-        p1.setIsActive(true);
+        p1.setActive(true);
         p1.setStockThreshold(5);
         p1 = productRepository.save(p1);
 
@@ -113,7 +113,7 @@ public class DataSeeder implements CommandLineRunner {
         p2.setCategory(electronics);
         p2.setCategoryName("Electronics");
         p2.setSeller(seller);
-        p2.setIsActive(true);
+        p2.setActive(true);
         p2.setStockThreshold(10);
         p2 = productRepository.save(p2);
 
@@ -127,7 +127,7 @@ public class DataSeeder implements CommandLineRunner {
         p3.setCategory(clothes);
         p3.setCategoryName("Clothing");
         p3.setSeller(seller2);
-        p3.setIsActive(true);
+        p3.setActive(true);
         p3.setStockThreshold(20);
         p3 = productRepository.save(p3);
 
