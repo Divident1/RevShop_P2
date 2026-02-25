@@ -1,11 +1,12 @@
-<!--<app-auth-page></app-auth-page>-->
-<router-outlet></router-outlet>
 <nav class="top-nav">
     <div class="nav-brand">🛍️ RevShop</div>
     <div class="nav-links">
+        <a routerLink="/buyer/dashboard" routerLinkActive="active">🏠 Products</a>
+        <a routerLink="/buyer/search" routerLinkActive="active">🔍 Search</a>
         <a routerLink="/orders" routerLinkActive="active">📦 Orders</a>
         <a routerLink="/checkout" routerLinkActive="active">🛒 Checkout</a>
         <a routerLink="/favorites" routerLinkActive="active">❤️ Favorites</a>
+        <a routerLink="/seller/dashboard" routerLinkActive="active">📊 Seller</a>
         <a routerLink="/login" routerLinkActive="active">🔐 Login</a>
     </div>
 </nav>

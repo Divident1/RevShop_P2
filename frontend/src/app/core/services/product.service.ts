@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Product } from '../../features/seller-product/models/product.model';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -9,31 +8,52 @@ import { Observable } from 'rxjs';
 export class ProductService {
 
   private baseUrl = 'http://localhost:8080/api/products';
+  private sellerUrl = 'http://localhost:8080/api/seller/products';
 
-    constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
-    addProduct(product: Product): Observable<Product> {
-      return this.http.post<Product>(this.baseUrl, product);
-    }
+  // ===== Kavya's Seller Methods =====
 
-    updateProduct(id: number, product: Product): Observable<Product> {
-      return this.http.put<Product>(`${this.baseUrl}/${id}`, product);
-    }
+  addProduct(product: any): Observable<any> {
+    return this.http.post<any>(this.baseUrl, product);
+  }
 
-    deleteProduct(id: number) {
-      return this.http.delete(`${this.baseUrl}/${id}`);
-    }
+  updateProduct(id: number, product: any): Observable<any> {
+    return this.http.put<any>(`${this.baseUrl}/${id}`, product);
+  }
 
-    getAllProducts(): Observable<Product[]> {
-      return this.http.get<Product[]>(this.baseUrl);
-    }
+  deleteProduct(id: number) {
+    return this.http.delete(`${this.baseUrl}/${id}`);
+  }
 
-    setThreshold(id: number, threshold: number) {
-      return this.http.put(
-        `${this.baseUrl}/${id}/threshold`,
-        { stockThreshold: threshold }
-      );
-    }
+  getAllProducts(): Observable<any[]> {
+    return this.http.get<any[]>(this.baseUrl);
+  }
 
+  setThreshold(id: number, threshold: number) {
+    return this.http.put(
+      `${this.baseUrl}/${id}/threshold`,
+      { stockThreshold: threshold }
+    );
+  }
 
+  // ===== Jatin's Buyer Methods =====
+
+  getProductsByCategory(categoryId: number, page: number = 0, size: number = 5) {
+    return this.http.get<any>(
+      `${this.baseUrl}/category/${categoryId}?page=${page}&size=${size}`
+    );
+  }
+
+  searchProducts(keyword: string) {
+    return this.http.get<any[]>(`${this.baseUrl}/search?keyword=${keyword}`);
+  }
+
+  getProductDetails(id: number) {
+    return this.http.get<any>(`${this.baseUrl}/details/${id}`);
+  }
+
+  getSellerProducts(sellerId: number) {
+    return this.http.get<any[]>(`${this.sellerUrl}/${sellerId}`);
+  }
 }

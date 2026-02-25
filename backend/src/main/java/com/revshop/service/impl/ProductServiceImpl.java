@@ -1,8 +1,6 @@
 package com.revshop.service.impl;
 
-import com.revshop.dto.ProductRequest;
-import com.revshop.dto.ProductUpdateRequest;
-import com.revshop.dto.ThresholdRequest;
+import com.revshop.dto.*;
 import com.revshop.exception.ForbiddenException;
 import com.revshop.exception.ResourceNotFoundException;
 import com.revshop.model.Product;
@@ -11,12 +9,11 @@ import com.revshop.service.ProductService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
-import com.revshop.security.CustomerUserDetails;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -25,6 +22,10 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private ProductRepository productRepository;
+
+    // ══════════════════════════════════════════════════════════════════════
+    // Kavya's Seller Methods
+    // ══════════════════════════════════════════════════════════════════════
 
     public Product addProduct(ProductRequest request) {
 
@@ -37,14 +38,13 @@ public class ProductServiceImpl implements ProductService {
         product.setDescription(request.getDescription());
         product.setPrice(request.getPrice());
         product.setMrp(request.getMrp());
-        product.setCategory(request.getCategory());
+        product.setCategoryName(request.getCategory());
         product.setQuantity(request.getQuantity());
-        Long sellerId = getCurrentUserId();
-        product.setSellerId(sellerId);
 
         double discount = ((request.getMrp() - request.getPrice()) / request.getMrp()) * 100;
         product.setDiscountPercentage(discount);
 
+        Long sellerId = getCurrentUserId();
         logger.info("Seller {} adding product: {}", sellerId, request.getName());
 
         return productRepository.save(product);
@@ -69,7 +69,7 @@ public class ProductServiceImpl implements ProductService {
         product.setDescription(request.getDescription());
         product.setPrice(request.getPrice());
         product.setMrp(request.getMrp());
-        product.setCategory(request.getCategory());
+        product.setCategoryName(request.getCategory());
         product.setQuantity(request.getQuantity());
 
         double discount = ((request.getMrp() - request.getPrice()) / request.getMrp()) * 100;
@@ -79,6 +79,7 @@ public class ProductServiceImpl implements ProductService {
 
         return productRepository.save(product);
     }
+
     public void deleteProduct(Long id) {
 
         Product product = productRepository.findById(id)
@@ -90,7 +91,7 @@ public class ProductServiceImpl implements ProductService {
             throw new ForbiddenException("You are not the owner of this product");
         }
 
-        product.setIsActive(false);   // soft delete
+        product.setIsActive(false); // soft delete
         productRepository.save(product);
     }
 
@@ -102,18 +103,61 @@ public class ProductServiceImpl implements ProductService {
 
         Long sellerId = getCurrentUserId();
 
-        // owner check
-        if (!product.getSellerId().equals(sellerId)){
+        if (!product.getSellerId().equals(sellerId)) {
             throw new ForbiddenException("Only product owner can set threshold");
         }
 
         product.setStockThreshold(request.getThreshold());
-
-        // alert check
         checkLowStock(product);
 
         return productRepository.save(product);
     }
+
+    public List<Product> getAllProducts() {
+        return productRepository.findAll();
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    // Jatin's Buyer Methods
+    // ══════════════════════════════════════════════════════════════════════
+
+    private ProductDto map(Product p) {
+        return new ProductDto(
+                p.getId(),
+                p.getName(),
+                p.getDescription(),
+                p.getPrice(),
+                p.getQuantity(),
+                p.getRating());
+    }
+
+    @Override
+    public Page<ProductDto> getProductsByCategory(Long categoryId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return productRepository
+                .findByCategoryIdAndIsActiveTrue(categoryId, pageable)
+                .map(this::map);
+    }
+
+    @Override
+    public List<ProductDto> searchProducts(String keyword) {
+        return productRepository
+                .searchProducts(keyword)
+                .stream()
+                .map(this::map)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public ProductDto getProductDetails(Long productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+        return map(product);
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    // Helpers
+    // ══════════════════════════════════════════════════════════════════════
 
     private void checkLowStock(Product product) {
         if (product.getQuantity() <= product.getStockThreshold()) {
@@ -122,20 +166,9 @@ public class ProductServiceImpl implements ProductService {
                     product.getQuantity());
         }
     }
+
     private Long getCurrentUserId() {
-
-//        Authentication authentication =
-//                SecurityContextHolder.getContext().getAuthentication();
-//
-//        CustomerUserDetails userDetails =
-//                (CustomerUserDetails) authentication.getPrincipal();
-//
-//        return userDetails.getId();
-
+        // TODO: Replace with real JWT auth
         return 1L;
-    }
-
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
     }
 }
