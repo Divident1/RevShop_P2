@@ -1,13 +1,14 @@
-import { Component } from '@angular/core';
+import { Component ,OnInit} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-auth-page',
   templateUrl: './auth-page.component.html',
   styleUrls: ['./auth-page.component.css']
 })
-export class AuthPageComponent {
+export class AuthPageComponent implements OnInit{
 
   isLogin = true;
 
@@ -19,8 +20,10 @@ export class AuthPageComponent {
 
   constructor(
     private fb: FormBuilder,
-    private authService: AuthService
+    private authService: AuthService,
+    private router:Router
   ) {}
+
 
   ngOnInit() {
 
@@ -33,17 +36,17 @@ export class AuthPageComponent {
 
     this.registerForm = this.fb.group({
 
-  name: ['', Validators.required],
+      name: ['', Validators.required],
 
-  email: ['', [Validators.required, Validators.email]],
+      email: ['', [Validators.required, Validators.email]],
 
-  password: ['', Validators.required],
+      password: ['', Validators.required],
 
-  role: ['BUYER', Validators.required],
+      role: ['BUYER', Validators.required],
 
-  businessName: ['']   // ADD THIS LINE
+      businessName: ['']   // ADD THIS LINE
 
-});
+    });
 
   }
 
@@ -66,15 +69,12 @@ export class AuthPageComponent {
         next: (res:any) => {
 
           this.message = "Login successful";
-          this.error = '';
-
+          this.router.navigate(['/seller']);
         },
-
         error: (err:any) => {
-
           this.error = err.error;
           this.message = '';
-
+          alert("Login failed");
         }
 
       });

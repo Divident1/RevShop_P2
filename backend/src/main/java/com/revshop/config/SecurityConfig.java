@@ -17,9 +17,12 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
-                .csrf(csrf -> csrf.disable())
-
+                .csrf(csrf -> csrf.disable())          // allow POST from Postman
                 .authorizeHttpRequests(auth -> auth
+//                        //.anyRequest().authenticated()
+                                .anyRequest().permitAll()
+                )
+                .cors(cors -> {});
 
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/orders/**").permitAll()
@@ -40,7 +43,5 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
 
         return new BCryptPasswordEncoder();
-
     }
-
 }

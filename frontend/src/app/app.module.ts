@@ -7,6 +7,9 @@ import { AppComponent } from './app.component';
 import { AuthPageComponent } from './features/auth/auth-page/auth-page.component';
 import { ReactiveFormsModule } from '@angular/forms';
 
+// Kavya's module
+import { SellerProductModule } from './features/seller-product/seller-product.module';
+
 // Gotam's components
 import { OrderListComponent } from './features/orders/order-list/order-list.component';
 import { ProductReviewsComponent } from './features/reviews/product-reviews/product-reviews.component';
@@ -33,7 +36,8 @@ import { OrderConfirmationComponent } from './features/order-confirmation/order-
     AppRoutingModule,
     FormsModule,
     HttpClientModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    SellerProductModule
   ],
   providers: [],
   bootstrap: [AppComponent]
