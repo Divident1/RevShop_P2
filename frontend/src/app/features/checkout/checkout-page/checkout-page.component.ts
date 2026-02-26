@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OrderRequest } from '../../../core/services/order.service';
 import { CartService, CartItemResponse } from '../../../core/services/cart.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 interface CheckoutFormState {
   name: string;
@@ -28,21 +29,28 @@ export class CheckoutPageComponent implements OnInit {
   cartItems: CartItemResponse[] = [];
   isSubmitting = false;
   errorMessage = '';
-  private readonly cartUserId = 3;
+  private cartUserId = 3;
   private buyerUserId = '3';
 
   constructor(
     private route: ActivatedRoute,
     private cartService: CartService,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) { }
 
   ngOnInit(): void {
-    this.prefillBuyerDetails();
-    this.setAmountFromCartService();
+    this.authService.currentUser$.subscribe(user => {
+      if (user) {
+        this.buyerUserId = user.id.toString();
+        this.cartUserId = user.id;
+      }
+      this.prefillBuyerDetails();
+      this.setAmountFromCartService();
 
-    this.route.queryParamMap.subscribe(() => {
-      this.setDefaultAmount();
+      this.route.queryParamMap.subscribe(() => {
+        this.setDefaultAmount();
+      });
     });
   }
 

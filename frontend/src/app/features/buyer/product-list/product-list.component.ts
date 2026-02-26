@@ -36,6 +36,13 @@ export class ProductListComponent implements OnInit {
         this.userId = user.id;
         this.loadProducts();
         this.loadDashboardData();
+        this.cartService.getCart(this.userId).subscribe(cart => {
+          if (cart && cart.items) {
+            cart.items.forEach(item => {
+              this.cartQuantities[item.productId] = item.quantity;
+            });
+          }
+        });
       }
     });
   }
@@ -82,14 +89,22 @@ export class ProductListComponent implements OnInit {
 
   decrementFromCart(product: any) {
     const current = this.cartQuantities[product.id] || 0;
-    if (current <= 1) {
-      // Remove from cart entirely
-      delete this.cartQuantities[product.id];
-    } else {
-      this.cartQuantities[product.id] = current - 1;
-    }
-    // Refresh cart badge
-    this.cartService.getCart(this.userId).subscribe();
+    this.cartService.cart$.subscribe(cart => {
+      const item = cart?.items.find(i => i.productId === product.id);
+      if (item) {
+        if (current <= 1) {
+          this.cartService.removeFromCart(this.userId, item.cartItemId).subscribe(() => {
+            delete this.cartQuantities[product.id];
+            this.cartService.getCart(this.userId).subscribe();
+          });
+        } else {
+          this.cartService.updateCartItemQuantity(this.userId, item.cartItemId, current - 1).subscribe(() => {
+            this.cartQuantities[product.id] = current - 1;
+            this.cartService.getCart(this.userId).subscribe();
+          });
+        }
+      }
+    }).unsubscribe();
   }
 
   toggleFavorite(product: any) {

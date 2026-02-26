@@ -37,7 +37,7 @@ export class AppComponent implements OnInit {
       this.currentUser = user;
       if (user) {
         // Fetch specific cart using user.id once Backend syncs cart properly to user ID.
-        this.cartService.getCart(3).subscribe(); // Still hardcoded to 3 based on earlier state
+        this.cartService.getCart(user.id).subscribe();
         this.loadNotifications(user.email!);
       } else {
         this.notifications = [];

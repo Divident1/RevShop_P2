@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CartService, CartResponse, CartItemResponse } from '../../../core/services/cart.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
     selector: 'app-cart',
@@ -13,13 +14,17 @@ export class CartComponent implements OnInit {
     error: string | null = null;
     updatingItemId: number | null = null;
 
-    // TODO: Replace with actual logged-in user ID from auth service
     private userId = 3;
 
-    constructor(private cartService: CartService) { }
+    constructor(private cartService: CartService, private authService: AuthService) { }
 
     ngOnInit(): void {
-        this.loadCart();
+        this.authService.currentUser$.subscribe(user => {
+            if (user) {
+                this.userId = user.id;
+                this.loadCart();
+            }
+        });
     }
 
     loadCart(): void {
