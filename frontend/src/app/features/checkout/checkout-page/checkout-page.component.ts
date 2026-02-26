@@ -2,6 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { CheckoutRequest, OrderService } from '../../../core/order.service';
+import { CartService } from '../../../core/services/cart.service';
+
+interface CheckoutFormState {
+  name: string;
+  phoneNumber: string;
+  shippingAddress: string;
+  totalAmount: number;
+}
 
 @Component({
   selector: 'app-checkout-page',
@@ -10,7 +18,7 @@ import { CheckoutRequest, OrderService } from '../../../core/order.service';
 })
 export class CheckoutPageComponent implements OnInit {
 
-  order: CheckoutRequest = {
+  order: CheckoutFormState = {
     name: '',
     phoneNumber: '',
     shippingAddress: '',
@@ -20,15 +28,19 @@ export class CheckoutPageComponent implements OnInit {
   itemCount = 1;
   isSubmitting = false;
   errorMessage = '';
+  private readonly cartUserId = 3;
+  private buyerUserId = '3';
 
   constructor(
     private route: ActivatedRoute,
     private orderService: OrderService,
+    private cartService: CartService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
     this.prefillBuyerDetails();
+    this.setAmountFromCartService();
 
     this.route.queryParamMap.subscribe(() => {
       this.setDefaultAmount();
@@ -48,12 +60,16 @@ export class CheckoutPageComponent implements OnInit {
         const parsed = JSON.parse(raw);
         const name = String(parsed?.name ?? parsed?.username ?? parsed?.fullName ?? '').trim();
         const phone = String(parsed?.phoneNumber ?? parsed?.phone ?? parsed?.mobile ?? '').trim();
+        const userId = String(parsed?.id ?? parsed?.userId ?? parsed?.buyerId ?? '').trim();
 
         if (name && !this.order.name) {
           this.order.name = name;
         }
         if (phone && !this.order.phoneNumber) {
           this.order.phoneNumber = phone;
+        }
+        if (userId && this.buyerUserId === '3') {
+          this.buyerUserId = userId;
         }
       } catch {
         // Ignore malformed user JSON and continue fallback checks.
@@ -62,6 +78,7 @@ export class CheckoutPageComponent implements OnInit {
 
     const directNameKeys = ['buyerName', 'userName', 'name'];
     const directPhoneKeys = ['buyerPhoneNumber', 'phoneNumber', 'userPhone', 'phone'];
+    const directUserIdKeys = ['buyerId', 'userId', 'currentUserId'];
 
     for (const key of directNameKeys) {
       if (this.order.name) {
@@ -80,6 +97,16 @@ export class CheckoutPageComponent implements OnInit {
       const value = localStorage.getItem(key);
       if (value?.trim()) {
         this.order.phoneNumber = value.trim();
+      }
+    }
+
+    for (const key of directUserIdKeys) {
+      if (this.buyerUserId !== '3') {
+        break;
+      }
+      const value = localStorage.getItem(key);
+      if (value?.trim()) {
+        this.buyerUserId = value.trim();
       }
     }
   }
@@ -113,6 +140,24 @@ export class CheckoutPageComponent implements OnInit {
     if (cartAmount > 0) {
       this.order.totalAmount = cartAmount;
     }
+  }
+
+  private setAmountFromCartService(): void {
+    this.cartService.getCart(this.cartUserId).subscribe({
+      next: (cart) => {
+        const total = Number(cart?.totalPrice ?? 0);
+        const count = Number(cart?.totalItems ?? 0);
+        if (Number.isFinite(total) && total > 0) {
+          this.order.totalAmount = +total.toFixed(2);
+        }
+        if (Number.isFinite(count) && count > 0) {
+          this.itemCount = count;
+        }
+      },
+      error: () => {
+        // Ignore cart API errors and rely on query/localStorage fallback.
+      }
+    });
   }
 
   private getAmountFromSelectedProduct(): number {
@@ -310,7 +355,14 @@ export class CheckoutPageComponent implements OnInit {
     this.order.name = this.order.name.trim();
     this.order.phoneNumber = this.order.phoneNumber.trim();
 
-    this.orderService.createOrder(this.order).subscribe({
+    const payload: CheckoutRequest = {
+      userId: this.buyerUserId,
+      shippingAddress: this.order.shippingAddress.trim(),
+      billingAddress: this.order.shippingAddress.trim(),
+      totalAmount: this.order.totalAmount
+    };
+
+    this.orderService.createOrder(payload).subscribe({
       next: (response) => {
         this.isSubmitting = false;
         this.router.navigate(['/payment'], {

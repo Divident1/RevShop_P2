@@ -1,1 +1,69 @@
-<router-outlet></router-outlet>
+<!-- Modern Navigation Bar -->
+<nav class="navbar animate-fade">
+    <div class="container nav-content">
+        <div class="logo" routerLink="/">
+            <span class="logo-accent">Rev</span>Shop
+        </div>
+
+        <div class="nav-links">
+            <a routerLink="/buyer/dashboard" routerLinkActive="active"
+                [routerLinkActiveOptions]="{exact: true}">Products</a>
+            <a routerLink="/buyer/search" routerLinkActive="active">Search</a>
+            <a routerLink="/favorites" routerLinkActive="active">Favorites</a>
+            <a routerLink="/orders" routerLinkActive="active">Orders</a>
+
+            <div class="nav-divider"></div>
+            <a routerLink="/seller/dashboard" routerLinkActive="active" class="seller-link">Seller Center</a>
+        </div>
+
+        <div class="nav-actions">
+            <div class="cart-trigger" routerLink="/cart">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
+                    <path d="M3 6h18" />
+                    <path d="M16 10a4 4 0 0 1-8 0" />
+                </svg>
+                <span class="cart-badge" *ngIf="(cartService.cart$ | async) as cart">{{ cart.totalItems }}</span>
+            </div>
+
+            <button routerLink="/login" class="btn-premium btn-primary">
+                Sign In
+            </button>
+        </div>
+    </div>
+</nav>
+
+<main class="main-wrapper">
+    <router-outlet></router-outlet>
+</main>
+
+<footer class="footer">
+    <div class="container footer-content">
+        <div class="footer-brand">
+            <div class="logo smaller">
+                <span class="logo-accent">Rev</span>Shop
+            </div>
+            <p>Premium shopping experience designed for the next generation.</p>
+        </div>
+        <div class="footer-links">
+            <div class="link-group">
+                <h4>Platform</h4>
+                <a routerLink="/buyer/dashboard">Shop All</a>
+                <a routerLink="/seller/dashboard">Sell on RevShop</a>
+                <a href="#">About Us</a>
+            </div>
+            <div class="link-group">
+                <h4>Support</h4>
+                <a href="#">Help Center</a>
+                <a href="#">Shipping</a>
+                <a href="#">Returns</a>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <div class="container">
+            <p>&copy; 2026 RevShop P2. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
