@@ -151,13 +151,14 @@ public class OrderServiceImpl implements OrderService {
 
         Order order = new Order();
         order.setBuyer(buyer);
+        order.setName(request.getName());
+        order.setPhoneNumber(request.getPhoneNumber());
         order.setShippingAddress(request.getShippingAddress());
         order.setBillingAddress(request.getBillingAddress());
         order.setTotalAmount(request.getTotalAmount());
         order.setStatus(OrderStatus.PENDING);
         order.setPaymentStatus("PENDING");
         order.setOrderDate(LocalDateTime.now());
-
         Order savedOrder = orderRepository.save(order);
 
         return OrderResponseDto.builder()

@@ -2,6 +2,7 @@ package com.revshop.controller;
 
 import com.revshop.dto.*;
 import com.revshop.model.OrderStatus;
+import jakarta.validation.Valid;
 import com.revshop.service.OrderService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -59,7 +60,7 @@ public class OrderController {
     // ── Anusha's Endpoints (Checkout & Payment) ───────────────────────────
 
     @PostMapping("/checkout")
-    public ResponseEntity<OrderResponseDto> checkout(@RequestBody CheckoutRequestDto request) {
+    public ResponseEntity<OrderResponseDto> checkout(@Valid @RequestBody CheckoutRequestDto request) {
         return ResponseEntity.ok(orderService.checkout(request));
     }
 
@@ -67,4 +68,5 @@ public class OrderController {
     public ResponseEntity<OrderResponseDto> payment(@RequestBody PaymentRequestDto request) {
         return ResponseEntity.ok(orderService.processPayment(request));
     }
+
 }

@@ -29,6 +29,10 @@ public class Order {
     private double totalAmount;
     private String shippingAddress;
     private String billingAddress;
+
+    // Anusha's additional fields
+    private String name;
+    private String phoneNumber;
     private String paymentMethod;
     private String paymentStatus = "PENDING";
     private LocalDateTime orderDate = LocalDateTime.now();
@@ -40,6 +44,7 @@ public class Order {
     public Long getId() {
         return id;
     }
+
 
     public void setId(Long id) {
         this.id = id;
@@ -125,8 +130,26 @@ public class Order {
         this.updatedAt = updatedAt;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
     public void addOrderItem(OrderItem item) {
         orderItems.add(item);
         item.setOrder(this);
     }
+
+    private LocalDateTime createdAt;
 }
