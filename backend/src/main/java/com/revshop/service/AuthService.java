@@ -7,12 +7,12 @@ public interface AuthService {
 
     String register(RegisterRequest request);
 
+    String loginWithToken(LoginRequest request);
+
     User login(LoginRequest request);
 
     void forgotPassword(ForgotPasswordRequest request);
 
-    void resetPassword(ResetPasswordRequest request);
+    String resetPassword(ResetPasswordRequest request);
 
 }
-
-

@@ -1,13 +1,13 @@
 package com.revshop.service.impl;
 
+import com.revshop.util.JwtUtil;
 import com.revshop.dto.*;
 import com.revshop.model.User;
 import com.revshop.repository.UserRepository;
 import com.revshop.service.AuthService;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -16,7 +16,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
 
     public AuthServiceImpl(UserRepository userRepository,
-                           PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
@@ -29,11 +29,13 @@ public class AuthServiceImpl implements AuthService {
         }
 
         User user = new User();
+
         user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(request.getRole());
 
+        // Only seller has business name
         if (request.getRole().name().equals("SELLER")) {
             user.setBusinessName(request.getBusinessName());
         }
@@ -57,28 +59,33 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void forgotPassword(ForgotPasswordRequest request) {
-
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        String token = UUID.randomUUID().toString();
-        user.setResetToken(token);
-
-        userRepository.save(user);
-
-        System.out.println("Reset Token: " + token);
+    public String loginWithToken(LoginRequest request) {
+        User user = login(request);
+        return JwtUtil.generateToken(
+                user.getEmail(),
+                user.getRole().name());
     }
 
     @Override
-    public void resetPassword(ResetPasswordRequest request) {
+    public void forgotPassword(ForgotPasswordRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found with this email"));
 
-        User user = userRepository.findByResetToken(request.getToken())
-                .orElseThrow(() -> new RuntimeException("Invalid token"));
-
-        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        user.setResetToken(null);
-
+        user.setResetToken("dummy-reset-token");
         userRepository.save(user);
     }
+
+    @Override
+    public String resetPassword(ResetPasswordRequest request) {
+
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found with this email"));
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+
+        userRepository.save(user);
+
+        return "Password reset successful";
+    }
+
 }

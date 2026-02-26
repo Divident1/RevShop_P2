@@ -1,44 +1,86 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { jwtDecode } from 'jwt-decode';
 
 export interface User {
   id: number;
   username: string;
+  role?: string;
+  email?: string;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class AuthService {
 
-  API = "http://localhost:8080/api/auth";
+  private baseUrl = "http://localhost:8080/api/auth";
 
   private _currentUser = new BehaviorSubject<User | null>(null);
-  currentUser$ = this._currentUser.asObservable(); // for subscription
+  currentUser$ = this._currentUser.asObservable();
   get currentUser(): User | null { return this._currentUser.value; }
 
+  constructor(private http: HttpClient) {
+    this.checkToken();
+  }
 
-  constructor(private http: HttpClient) {}
-
-  login(data: any): Observable<User> {
-      return this.http.post<User>(this.API + "/login", data)
-        .pipe(
-          tap((user: User) => {
-            this._currentUser.next(user);
-          })
-        );
+  private checkToken() {
+    const token = this.getToken();
+    if (token) {
+      try {
+        const decoded: any = jwtDecode(token);
+        this._currentUser.next({
+          id: 1, // Mocked ID until backend adds it to claims
+          username: decoded.sub || 'User',
+          role: decoded.role,
+          email: decoded.sub
+        });
+      } catch (e) {
+        this.logout();
+      }
     }
+  }
 
-    register(data: any): Observable<string> {
-      return this.http.post<string>(this.API + "/register", data, { responseType: 'text' as 'json' });
-    }
+  login(data: any): Observable<string> {
+    return this.http.post(
+      this.baseUrl + "/login",
+      data,
+      { responseType: 'text' }
+    ).pipe(
+      tap((token: string) => {
+        this.saveToken(token);
+        this.checkToken();
+      })
+    );
+  }
 
-    logout() {
-      this._currentUser.next(null);
-    }
+  register(data: any) {
+    return this.http.post(
+      this.baseUrl + "/register",
+      data,
+      { responseType: 'text' }
+    );
+  }
 
+  resetPassword(data: any) {
+    return this.http.post(
+      this.baseUrl + "/reset-password",
+      data,
+      { responseType: 'text' }
+    );
+  }
 
+  saveToken(token: string) {
+    localStorage.setItem("token", token);
+  }
+
+  getToken() {
+    return localStorage.getItem("token");
+  }
+
+  logout() {
+    localStorage.removeItem("token");
+    this._currentUser.next(null);
+  }
 
 }

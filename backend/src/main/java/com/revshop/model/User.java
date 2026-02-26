@@ -22,8 +22,6 @@ public class User {
 
     private String businessName;
 
-    private String resetToken;
-
 
     public Long getId() {
         return id;
@@ -73,11 +71,4 @@ public class User {
         this.businessName = businessName;
     }
 
-    public String getResetToken() {
-        return resetToken;
-    }
-
-    public void setResetToken(String resetToken) {
-        this.resetToken = resetToken;
-    }
 }
