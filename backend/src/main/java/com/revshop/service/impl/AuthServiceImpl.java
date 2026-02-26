@@ -21,9 +21,7 @@ public class AuthServiceImpl implements AuthService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    // =========================
-    // REGISTER
-    // =========================
+
     @Override
     public String register(RegisterRequest request) {
 
@@ -48,9 +46,7 @@ public class AuthServiceImpl implements AuthService {
         return "User registered successfully";
     }
 
-    // =========================
-    // LOGIN
-    // =========================
+
 
     @Override
     public String login(LoginRequest request) {
@@ -62,12 +58,14 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Invalid password");
         }
 
-        return JwtUtil.generateToken(user.getEmail());
+
+        return JwtUtil.generateToken(
+                user.getEmail(),
+                user.getRole().name()
+        );
     }
 
-    // =========================
-    // RESET PASSWORD (DIRECT)
-    // =========================
+
     @Override
     public String resetPassword(ResetPasswordRequest request) {
 

@@ -13,37 +13,45 @@ public class JwtUtil {
     private static final SecretKey KEY =
             Keys.hmacShaKeyFor("mysecretkeymysecretkeymysecretkey12".getBytes());
 
-    private static final long EXPIRATION = 86400000; // 1 day
+    private static final long EXPIRATION = 86400000;
 
-
-    public static String generateToken(String email) {
+    // generate token with role
+    public static String generateToken(String email, String role) {
 
         return Jwts.builder()
-                .setSubject(email)  // FIXED
-                .setIssuedAt(new Date())  // FIXED
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))  // FIXED
-                .signWith(KEY, SignatureAlgorithm.HS256)  // FIXED
+                .setSubject(email)
+                .claim("role", role)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
+                .signWith(KEY, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-
     public static String extractEmail(String token) {
 
-        Claims claims = Jwts.parserBuilder()   // FIXED
+        return Jwts.parserBuilder()
                 .setSigningKey(KEY)
                 .build()
                 .parseClaimsJws(token)
-                .getBody();
-
-        return claims.getSubject();
+                .getBody()
+                .getSubject();
     }
 
+    public static String extractRole(String token) {
+
+        return Jwts.parserBuilder()
+                .setSigningKey(KEY)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("role", String.class);
+    }
 
     public static boolean validateToken(String token) {
 
         try {
 
-            Jwts.parserBuilder()   // FIXED
+            Jwts.parserBuilder()
                     .setSigningKey(KEY)
                     .build()
                     .parseClaimsJws(token);
