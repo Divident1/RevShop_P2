@@ -18,23 +18,16 @@ public class SecurityConfig {
 
         http
                 .csrf(csrf -> csrf.disable())          // allow POST from Postman
+                .cors(cors -> {})
                 .authorizeHttpRequests(auth -> auth
-//                        //.anyRequest().authenticated()
-                                .anyRequest().permitAll()
-                )
-                .cors(cors -> {});
-
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/orders/**").permitAll()
                         .requestMatchers("/api/reviews/**").permitAll()
                         .requestMatchers("/api/favorites/**").permitAll()
 
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
 
-                )
-
-                .cors(cors -> {
-                });
+                );
 
         return http.build();
     }
