@@ -2,8 +2,8 @@ package com.revshop.dto;
 
 public class ResetPasswordRequest {
 
-    private String email;   // ✅ changed from token
-    private String password;
+    private String email;
+    private String newPassword;
 
     public String getEmail() {
         return email;
@@ -13,11 +13,11 @@ public class ResetPasswordRequest {
         this.email = email;
     }
 
-    public String getPassword() {
-        return password;
+    public String getNewPassword() {
+        return newPassword;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setNewPassword(String newPassword) {
+        this.newPassword = newPassword;
     }
 }

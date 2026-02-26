@@ -4,7 +4,6 @@ import com.revshop.dto.*;
 import com.revshop.model.User;
 import com.revshop.repository.UserRepository;
 import com.revshop.service.AuthService;
-import com.revshop.util.TokenUtil;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,6 +20,9 @@ public class AuthServiceImpl implements AuthService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    // =========================
+    // REGISTER
+    // =========================
     @Override
     public String register(RegisterRequest request) {
 
@@ -35,7 +37,7 @@ public class AuthServiceImpl implements AuthService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(request.getRole());
 
-        // set business name only if seller
+        // Only seller has business name
         if (request.getRole().name().equals("SELLER")) {
             user.setBusinessName(request.getBusinessName());
         }
@@ -45,6 +47,9 @@ public class AuthServiceImpl implements AuthService {
         return "User registered successfully";
     }
 
+    // =========================
+    // LOGIN
+    // =========================
     @Override
     public String login(LoginRequest request) {
 
@@ -58,33 +63,20 @@ public class AuthServiceImpl implements AuthService {
         return "Login successful";
     }
 
+    // =========================
+    // RESET PASSWORD (DIRECT)
+    // =========================
     @Override
-    public String forgotPassword(ForgotPasswordRequest request) {
+    public String resetPassword(ResetPasswordRequest request) {
 
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Email not found"));
+                .orElseThrow(() -> new RuntimeException("User not found with this email"));
 
-
-        String token = TokenUtil.generateResetToken();
-
-        user.setResetToken(token);
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
 
         userRepository.save(user);
 
-
-        return "Reset token generated: " + token;
+        return "Password reset successful";
     }
 
-    @Override
-    public String resetPasswordDirect(ResetPasswordRequest request) {
-
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found with email: " + request.getEmail()));
-
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-
-        userRepository.save(user);
-
-        return "Password reset successfully";
-    }
 }
