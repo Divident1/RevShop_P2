@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 
 import { AuthPageComponent } from './features/auth/auth-page/auth-page.component';
 import { ForgotPasswordComponent } from './features/auth/forgot-password/forgot-password.component';
+import { AuthGuard } from './core/guards/auth.guard';
 
 // Gotam's components
 import { OrderListComponent } from './features/orders/order-list/order-list.component';
@@ -29,33 +30,34 @@ const routes: Routes = [
   { path: 'forgot-password', component: ForgotPasswordComponent },
 
   // ===== GOTAM: Order Management =====
-  { path: 'orders', component: OrderListComponent },
-  { path: 'favorites', component: FavoritesComponent },
+  { path: 'orders', component: OrderListComponent, canActivate: [AuthGuard], data: { role: 'BUYER' } },
+  { path: 'favorites', component: FavoritesComponent, canActivate: [AuthGuard], data: { role: 'BUYER' } },
 
   // ===== ANUSHA: Checkout & Payment =====
-  { path: 'checkout', component: CheckoutPageComponent },
-  { path: 'payment', component: PaymentPageComponent },
-  { path: 'order-confirmation', component: OrderConfirmationComponent },
+  { path: 'checkout', component: CheckoutPageComponent, canActivate: [AuthGuard], data: { role: 'BUYER' } },
+  { path: 'payment', component: PaymentPageComponent, canActivate: [AuthGuard], data: { role: 'BUYER' } },
+  { path: 'order-confirmation', component: OrderConfirmationComponent, canActivate: [AuthGuard], data: { role: 'BUYER' } },
 
   // ===== JATIN: Buyer Dashboard =====
-  { path: 'buyer/dashboard', component: ProductListComponent },
-  { path: 'buyer/search', component: ProductSearchComponent },
-  { path: 'buyer/product/:id', component: ProductDetailsComponent },
+  { path: 'buyer/dashboard', component: ProductListComponent, canActivate: [AuthGuard], data: { role: 'BUYER' } },
+  { path: 'buyer/search', component: ProductSearchComponent, canActivate: [AuthGuard], data: { role: 'BUYER' } },
+  { path: 'buyer/product/:id', component: ProductDetailsComponent, canActivate: [AuthGuard], data: { role: 'BUYER' } },
 
   // ===== JATIN: Seller Dashboard =====
-  { path: 'seller/dashboard', component: SellerProductsComponent },
-  { path: 'seller/add', component: AddProductComponent },
+  { path: 'seller/dashboard', component: SellerProductsComponent, canActivate: [AuthGuard], data: { role: 'SELLER' } },
+  { path: 'seller/add', component: AddProductComponent, canActivate: [AuthGuard], data: { role: 'SELLER' } },
 
   // ===== KAVYA: Seller Product Module =====
   {
     path: 'seller',
+    canActivate: [AuthGuard], data: { role: 'SELLER' },
     loadChildren: () =>
       import('./features/seller-product/seller-product.module')
         .then(m => m.SellerProductModule)
   },
 
   // ===== PAVAN: Cart Management =====
-  { path: 'cart', component: CartComponent }
+  { path: 'cart', component: CartComponent, canActivate: [AuthGuard], data: { role: 'BUYER' } }
 ];
 
 @NgModule({
