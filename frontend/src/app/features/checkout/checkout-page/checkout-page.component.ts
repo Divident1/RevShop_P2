@@ -143,7 +143,15 @@ export class CheckoutPageComponent implements OnInit {
   }
 
   private getAmountFromLocalCart(): number {
-    const keys = ['revshop_cart_total', 'cartTotal', 'totalAmount', 'revshop_cart'];
+    const keys = [
+      'revshop_cart_total',
+      'cartTotal',
+      'totalAmount',
+      'revshop_cart',
+      'cart',
+      'cartItems',
+      'items'
+    ];
 
     for (const key of keys) {
       const raw = localStorage.getItem(key);
@@ -151,35 +159,129 @@ export class CheckoutPageComponent implements OnInit {
         continue;
       }
 
-      if (key !== 'revshop_cart') {
-        const value = Number(raw);
-        if (Number.isFinite(value) && value > 0) {
-          return +value.toFixed(2);
-        }
-        continue;
+      const numberFromRaw = this.parsePositiveNumber(raw);
+      if (numberFromRaw > 0) {
+        return numberFromRaw;
       }
 
       try {
         const parsed = JSON.parse(raw);
-        if (!Array.isArray(parsed)) {
-          continue;
+
+        const structuredTotal = this.getTotalFromStructuredCart(parsed);
+        if (structuredTotal > 0) {
+          return structuredTotal;
         }
 
-        const total = parsed.reduce((sum, item) => {
-          const price = Number(item?.price ?? item?.amount ?? 0);
-          const qty = Number(item?.quantity ?? 1);
-          if (!Number.isFinite(price) || !Number.isFinite(qty) || price <= 0 || qty <= 0) {
-            return sum;
+        if (typeof parsed === 'object' && parsed !== null) {
+          const parsedRecord = parsed as Record<string, unknown>;
+          const nestedTotal = this.parsePositiveNumber(
+            parsedRecord['total'] ??
+            parsedRecord['cartTotal'] ??
+            parsedRecord['totalAmount'] ??
+            parsedRecord['grandTotal']
+          );
+          if (nestedTotal > 0) {
+            return nestedTotal;
           }
-          return sum + price * qty;
-        }, 0);
-
-        if (total > 0) {
-          return +total.toFixed(2);
         }
       } catch {
         // Ignore malformed cart JSON and keep searching.
       }
+    }
+
+    return 0;
+  }
+
+  private getTotalFromStructuredCart(parsed: unknown): number {
+    const items = this.extractCartItems(parsed);
+    if (items.length === 0) {
+      return 0;
+    }
+
+    let total = 0;
+    let itemCount = 0;
+
+    for (const item of items) {
+      if (typeof item !== 'object' || item === null) {
+        continue;
+      }
+
+      const itemRecord = item as Record<string, unknown>;
+      const quantity = this.parsePositiveNumber(
+        itemRecord['quantity'] ??
+        itemRecord['qty'] ??
+        itemRecord['count'] ??
+        1
+      ) || 1;
+
+      const unitPrice = this.parsePositiveNumber(
+        itemRecord['price'] ??
+        itemRecord['amount'] ??
+        itemRecord['productPrice'] ??
+        itemRecord['unitPrice'] ??
+        itemRecord['sellingPrice']
+      );
+
+      const lineTotal = this.parsePositiveNumber(
+        itemRecord['lineTotal'] ??
+        itemRecord['total'] ??
+        itemRecord['totalAmount'] ??
+        itemRecord['itemTotal']
+      );
+
+      if (unitPrice > 0) {
+        total += unitPrice * quantity;
+        itemCount += quantity;
+        continue;
+      }
+
+      if (lineTotal > 0) {
+        total += lineTotal;
+        itemCount += quantity;
+      }
+    }
+
+    if (total > 0) {
+      this.itemCount = itemCount > 0 ? itemCount : this.itemCount;
+      return +total.toFixed(2);
+    }
+
+    return 0;
+  }
+
+  private extractCartItems(parsed: unknown): unknown[] {
+    if (Array.isArray(parsed)) {
+      return parsed;
+    }
+
+    if (typeof parsed !== 'object' || parsed === null) {
+      return [];
+    }
+
+    const record = parsed as Record<string, unknown>;
+    const candidates = [record['items'], record['cartItems'], record['products'], record['cart']];
+
+    for (const candidate of candidates) {
+      if (Array.isArray(candidate)) {
+        return candidate;
+      }
+    }
+
+    return [];
+  }
+
+  private parsePositiveNumber(value: unknown): number {
+    if (typeof value === 'number') {
+      return Number.isFinite(value) && value > 0 ? +value.toFixed(2) : 0;
+    }
+
+    if (typeof value === 'string') {
+      const cleaned = value.replace(/[^\d.-]/g, '');
+      if (!cleaned) {
+        return 0;
+      }
+      const parsed = Number(cleaned);
+      return Number.isFinite(parsed) && parsed > 0 ? +parsed.toFixed(2) : 0;
     }
 
     return 0;

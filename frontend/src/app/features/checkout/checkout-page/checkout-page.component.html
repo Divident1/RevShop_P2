@@ -5,7 +5,7 @@
       <p class="muted">Fill order details to continue to payment.</p>
 
       <label for="name">Name</label>
-      <input id="name" type="text" placeholder="Buyer name" [(ngModel)]="order.name" readonly />
+      <input id="name" type="text" placeholder="Buyer name" [(ngModel)]="order.name" />
 
       <label for="phoneNumber">Phone Number</label>
       <input id="phoneNumber" type="tel" placeholder="Enter phone number" [(ngModel)]="order.phoneNumber" pattern="^\\+?[0-9]{10,15}$" />
