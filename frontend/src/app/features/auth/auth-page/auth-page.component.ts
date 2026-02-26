@@ -63,12 +63,14 @@ export class AuthPageComponent {
     this.authService.login(this.loginForm.value)
       .subscribe({
 
-        next: (res:any) => {
+       next: (res:any) => {
 
-          this.message = "Login successful";
-          this.error = '';
+  localStorage.setItem("token", res);
 
-        },
+  this.message = "Login successful";
+  this.error = '';
+
+},
 
         error: (err:any) => {
 
