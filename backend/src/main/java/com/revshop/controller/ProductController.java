@@ -41,8 +41,10 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
-        productService.deleteProduct(id);
+    public ResponseEntity<Void> deleteProduct(
+            @PathVariable Long id,
+            @RequestParam(required = false) Long sellerId) {
+        productService.deleteProduct(id, sellerId);
         return ResponseEntity.noContent().build();
     }
 
@@ -56,8 +58,7 @@ public class ProductController {
 
     @GetMapping
     public ResponseEntity<List<Product>> getAllProducts() {
-        List<Product> products = productService.getAllProducts();
-        return ResponseEntity.ok(products);
+        return ResponseEntity.ok(productService.getAllProducts());
     }
 
     // ── Jatin's Buyer Endpoints ────────────────────────────────────────
