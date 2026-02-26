@@ -19,6 +19,10 @@ export class SellerDashboardComponent implements OnInit {
   totalOrders: number = 0;
   lowStockItems: Product[] = [];
 
+  // Orders Management
+  activeTab: 'PRODUCTS' | 'ORDERS' = 'PRODUCTS';
+  sellerOrders: any[] = [];
+
   constructor(
     private productService: ProductService,
     private authService: AuthService,
@@ -53,6 +57,7 @@ export class SellerDashboardComponent implements OnInit {
 
     this.orderService.getOrdersBySeller(sellerId).subscribe(orders => {
       this.totalOrders = orders.length;
+      this.sellerOrders = orders; // store for display in the Orders tab
 
       // Sum up the subtotal of the items in each order that belong to this seller
       this.totalSales = 0;
@@ -83,6 +88,17 @@ export class SellerDashboardComponent implements OnInit {
     console.log("save event received");
     this.selectedProduct = null;
     this.loadProducts();
+  }
+
+  updateOrderStatus(orderId: number, status: string) {
+    this.orderService.updateOrderStatus(orderId, status).subscribe(() => {
+      this.loadSalesMetrics(); // Reload orders efficiently
+    });
+  }
+
+  // Helper method to set tabs
+  setTab(tab: 'PRODUCTS' | 'ORDERS') {
+    this.activeTab = tab;
   }
 
 }

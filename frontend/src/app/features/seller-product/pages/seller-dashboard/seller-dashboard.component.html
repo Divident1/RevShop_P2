@@ -59,9 +59,87 @@
     </div>
   </div>
 
-  <app-product-form [product]="selectedProduct" (onSaved)="onSaved()">
-  </app-product-form>
+  <!-- Dashboard Tabs -->
+  <div class="dashboard-tabs">
+    <button class="tab-btn" [class.active]="activeTab === 'PRODUCTS'" (click)="setTab('PRODUCTS')">My Catalog</button>
+    <button class="tab-btn" [class.active]="activeTab === 'ORDERS'" (click)="setTab('ORDERS')">
+      Manage Orders <span class="badge" *ngIf="totalOrders > 0">{{ totalOrders }}</span>
+    </button>
+  </div>
 
-  <app-product-list [products]="products" (editProduct)="edit($event)" (productDeleted)="loadProducts()">
-  </app-product-list>
+  <!-- PRODUCTS TAB -->
+  <div *ngIf="activeTab === 'PRODUCTS'" class="tab-content animate-fade">
+    <app-product-form [product]="selectedProduct" (onSaved)="onSaved()">
+    </app-product-form>
+
+    <app-product-list [products]="products" (editProduct)="edit($event)" (productDeleted)="loadProducts()">
+    </app-product-list>
+  </div>
+
+  <!-- ORDERS TAB -->
+  <div *ngIf="activeTab === 'ORDERS'" class="tab-content animate-fade">
+    <div class="orders-container glass-panel">
+      <h3>Customer Orders</h3>
+      <div class="table-responsive" *ngIf="sellerOrders.length > 0; else noOrders">
+        <table class="modern-table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Date</th>
+              <th>Items</th>
+              <th>Total</th>
+              <th>Status Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let order of sellerOrders">
+              <td>#{{ order.orderId }}</td>
+              <td>
+                <div class="customer-info">
+                  <strong>{{ order.buyerName }}</strong>
+                  <span>{{ order.buyerEmail }}</span>
+                </div>
+              </td>
+              <td>{{ order.orderDate | date:'mediumDate' }}</td>
+              <td>
+                <ul class="item-list">
+                  <li *ngFor="let item of order.items">
+                    {{ item.quantity }}x {{ item.productName }}
+                  </li>
+                </ul>
+              </td>
+              <td>₹{{ order.totalAmount }}</td>
+              <td>
+                <select class="status-select" [ngClass]="order.status.toLowerCase()" [ngModel]="order.status"
+                  (ngModelChange)="updateOrderStatus(order.orderId, $event)">
+                  <option value="PENDING">Pending</option>
+                  <option value="CONFIRMED">Confirmed</option>
+                  <option value="SHIPPED">Shipped</option>
+                  <option value="DELIVERED">Delivered</option>
+                  <option value="CANCELLED">Cancelled</option>
+                </select>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <ng-template #noOrders>
+        <div class="empty-state">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            class="feather feather-package">
+            <line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line>
+            <path
+              d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+            </path>
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+          </svg>
+          <p>No orders place yet. Keep marketing your products!</p>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+
 </section>
