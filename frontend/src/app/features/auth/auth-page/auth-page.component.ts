@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
-
+import {jwtDecode} from 'jwt-decode';
 @Component({
   selector: 'app-auth-page',
   templateUrl: './auth-page.component.html',
@@ -65,19 +65,21 @@ export class AuthPageComponent {
 
     next:(token:string)=>{
 
-      // ✅ SAVE JWT TOKEN HERE
+  
       localStorage.setItem("token", token);
 
-      this.message = "Login successful";
-      this.error = "";
+
+      const decoded:any = jwtDecode(token);
+
+      console.log("Email:", decoded.sub);
+      console.log("Role:", decoded.role);
+
+      this.message="Login successful";
 
     },
 
-    error:(err:any)=>{
-
-      this.error = err.error;
-      this.message = "";
-
+    error:(err)=>{
+      this.error=err.error;
     }
 
   });
