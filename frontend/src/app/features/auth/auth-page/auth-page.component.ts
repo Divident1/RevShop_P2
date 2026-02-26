@@ -81,33 +81,33 @@ export class AuthPageComponent {
 
   }
 
-  register(){
+  register() {
 
-    if(this.registerForm.invalid){
-      this.registerForm.markAllAsTouched();
-      return;
-    }
-
-    this.authService.register(this.registerForm.value)
-      .subscribe({
-
-        next: (res:any) => {
-
-          this.message = "Registered successfully";
-          this.error = '';
-          this.isLogin = true;
-
-        },
-
-        error: (err:any) => {
-
-          this.error = err.error;
-          this.message = '';
-
-        }
-
-      });
-
+  if(this.registerForm.invalid){
+    this.registerForm.markAllAsTouched();
+    return;
   }
+
+  this.authService.register(this.registerForm.value)
+    .subscribe({
+
+      next: (res:any) => {
+
+        this.message = res;   // ✅ use backend message
+        this.error = '';
+        this.isLogin = true;
+
+      },
+
+      error: (err:any) => {
+
+        this.error = err.error || "Registration failed";
+        this.message = '';
+
+      }
+
+    });
+
+}
 
 }

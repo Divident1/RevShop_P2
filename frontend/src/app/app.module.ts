@@ -6,10 +6,13 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AuthPageComponent } from './features/auth/auth-page/auth-page.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { ForgotPasswordComponent } from './features/auth/forgot-password/forgot-password.component';
+
 @NgModule({
   declarations: [
     AppComponent,
-    AuthPageComponent
+    AuthPageComponent,
+    ForgotPasswordComponent,
   ],
   imports: [
     BrowserModule,

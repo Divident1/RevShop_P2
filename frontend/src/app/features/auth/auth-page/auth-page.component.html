@@ -1,67 +1,89 @@
 <div class="auth-container">
 
-  <!-- BACKGROUND -->
+  <!-- Background -->
   <div class="background"></div>
 
-  <!-- CARD -->
+  <!-- Card -->
   <div class="auth-card">
 
-    <!-- TABS -->
+    <!-- Tabs -->
     <div class="tabs">
 
-      <div class="tab"
-           [class.active]="isLogin"
-           (click)="switchTab(true)">
+      <div
+        class="tab"
+        [class.active]="isLogin"
+        (click)="switchTab(true)">
         Login
       </div>
 
-      <div class="tab"
-           [class.active]="!isLogin"
-           (click)="switchTab(false)">
+      <div
+        class="tab"
+        [class.active]="!isLogin"
+        (click)="switchTab(false)">
         Register
       </div>
 
     </div>
 
 
-    <!-- LOGIN FORM -->
-    <form *ngIf="isLogin"
-          [formGroup]="loginForm"
-          (ngSubmit)="login()">
+    <!-- ================= LOGIN FORM ================= -->
+
+    <form
+      *ngIf="isLogin"
+      [formGroup]="loginForm"
+      (ngSubmit)="login()">
 
       <h2>Welcome Back</h2>
 
+      <!-- Success -->
       <div class="success" *ngIf="message">
         {{message}}
       </div>
 
+      <!-- Error -->
       <div class="error" *ngIf="error">
         {{error}}
       </div>
 
-      <input type="email"
-             placeholder="Enter your email"
-             formControlName="email">
+      <!-- Email -->
+      <input
+        type="email"
+        placeholder="Enter your email"
+        formControlName="email"
+      >
 
       <div class="validation"
-           *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.invalid">
+      *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.invalid">
 
         Email is required
 
       </div>
 
 
-      <input type="password"
-             placeholder="Enter your password"
-             formControlName="password">
+      <!-- Password -->
+      <input
+        type="password"
+        placeholder="Enter your password"
+        formControlName="password"
+      >
 
       <div class="validation"
-           *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid">
+      *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid">
 
         Password is required
 
       </div>
 
+
+      <!-- Forgot Password (CORRECT PLACE) -->
+      <div class="forgot-container">
+        <a routerLink="/forgot-password" class="forgot-link">
+          Forgot Password?
+        </a>
+      </div>
+
+
+      <!-- Login Button -->
       <button type="submit">
         Login
       </button>
@@ -70,78 +92,95 @@
 
 
 
-    <!-- REGISTER FORM -->
-    <form *ngIf="!isLogin"
-          [formGroup]="registerForm"
-          (ngSubmit)="register()">
+    <!-- ================= REGISTER FORM ================= -->
+
+    <form
+      *ngIf="!isLogin"
+      [formGroup]="registerForm"
+      (ngSubmit)="register()">
 
       <h2>Create Account</h2>
 
+      <!-- Success -->
       <div class="success" *ngIf="message">
         {{message}}
       </div>
 
+      <!-- Error -->
       <div class="error" *ngIf="error">
         {{error}}
       </div>
 
 
-      <!-- NAME -->
-      <input type="text"
-             placeholder="Enter your name"
-             formControlName="name">
+      <!-- Name -->
+      <input
+        type="text"
+        placeholder="Enter your name"
+        formControlName="name"
+      >
 
       <div class="validation"
-           *ngIf="registerForm.get('name')?.touched && registerForm.get('name')?.invalid">
+      *ngIf="registerForm.get('name')?.touched && registerForm.get('name')?.invalid">
 
         Name is required
 
       </div>
 
 
-      <!-- EMAIL -->
-      <input type="email"
-             placeholder="Enter your email"
-             formControlName="email">
+      <!-- Email -->
+      <input
+        type="email"
+        placeholder="Enter your email"
+        formControlName="email"
+      >
 
       <div class="validation"
-           *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.invalid">
+      *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.invalid">
 
         Email is required
 
       </div>
 
 
-      <!-- PASSWORD -->
-      <input type="password"
-             placeholder="Enter your password"
-             formControlName="password">
+      <!-- Password -->
+      <input
+        type="password"
+        placeholder="Enter your password"
+        formControlName="password"
+      >
 
       <div class="validation"
-           *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.invalid">
+      *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.invalid">
 
         Password is required
 
       </div>
 
 
-      <!-- ROLE -->
+      <!-- Role -->
       <select formControlName="role">
 
-        <option value="BUYER">Buyer</option>
+        <option value="BUYER">
+          Buyer
+        </option>
 
-        <option value="SELLER">Seller</option>
+        <option value="SELLER">
+          Seller
+        </option>
 
       </select>
 
 
-      <!-- BUSINESS NAME -->
-      <input *ngIf="registerForm.get('role')?.value === 'SELLER'"
-             type="text"
-             placeholder="Enter business name"
-             formControlName="businessName">
+      <!-- Business Name (only for seller) -->
+      <input
+        *ngIf="registerForm.get('role')?.value === 'SELLER'"
+        type="text"
+        placeholder="Enter business name"
+        formControlName="businessName"
+      >
 
 
+      <!-- Register Button -->
       <button type="submit">
         Register
       </button>
