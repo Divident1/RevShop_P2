@@ -1,10 +1,28 @@
-<h2>Seller Dashboard</h2>
+<div class="dashboard-container">
 
-<button routerLink="/seller/add">Add Product</button>
+  <h1 class="page-title">Seller Dashboard</h1>
 
-<div *ngFor="let p of products">
-  <h3>{{p.name}}</h3>
-  <p>₹ {{p.price}}</p>
+  <button routerLink="/seller/add" class="btn-primary">
+    Add Product
+  </button>
 
-  <button (click)="delete(p.id)">Delete</button>
+  <div class="product-grid">
+
+    <div class="product-card" *ngFor="let p of products">
+
+      <img src="assets/images/product-dummy.png"
+           class="product-img">
+
+      <h3 class="product-name">{{p.name}}</h3>
+
+      <p class="product-price">₹ {{p.price}}</p>
+
+      <p class="product-desc">{{p.description}}</p>
+
+      <button class="btn-danger">Delete</button>
+
+    </div>
+
+  </div>
+
 </div>
