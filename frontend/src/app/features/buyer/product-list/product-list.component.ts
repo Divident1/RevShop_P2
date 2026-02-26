@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ProductService } from '../../../core/services/product.service';
 import { CartService } from '../../../core/services/cart.service';
 import { FavoriteService } from '../../../core/services/favorite.service';
+import { OrderService, OrderResponse } from '../../../core/services/order.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-product-list',
@@ -13,18 +15,35 @@ export class ProductListComponent implements OnInit {
   products: any[] = [];
   page = 0;
   categoryId = 1;
-  // TODO: Use actual user ID from auth service
-  private userId = 3;
+  userId = 3;
   favoritesMap: { [key: number]: boolean } = {};
+
+  // Dashboard Widget Data
+  recentOrders: OrderResponse[] = [];
+  recentFavorites: any[] = [];
 
   constructor(
     private service: ProductService,
     private cartService: CartService,
-    private favoriteService: FavoriteService
+    private favoriteService: FavoriteService,
+    private orderService: OrderService,
+    private authService: AuthService
   ) { }
 
   ngOnInit() {
-    this.loadProducts();
+    this.authService.currentUser$.subscribe(user => {
+      if (user) {
+        this.userId = user.id;
+        this.loadProducts();
+        this.loadDashboardData();
+      }
+    });
+  }
+
+  loadDashboardData() {
+    this.orderService.getOrdersByBuyer(this.userId).subscribe(orders => {
+      this.recentOrders = orders.slice(0, 3); // Top 3 recent
+    });
   }
 
   loadProducts() {
@@ -41,6 +60,7 @@ export class ProductListComponent implements OnInit {
       favorites.forEach(f => {
         this.favoritesMap[f.product.id] = true;
       });
+      this.recentFavorites = favorites.slice(0, 3); // 3 recent favorites
     });
   }
 

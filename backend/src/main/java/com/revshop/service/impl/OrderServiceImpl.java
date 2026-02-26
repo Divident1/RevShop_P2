@@ -8,6 +8,7 @@ import com.revshop.repository.UserRepository;
 import com.revshop.service.OrderService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.revshop.service.NotificationService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,13 +20,16 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
+    private final NotificationService notificationService;
 
     public OrderServiceImpl(OrderRepository orderRepository,
             UserRepository userRepository,
-            ProductRepository productRepository) {
+            ProductRepository productRepository,
+            NotificationService notificationService) {
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.productRepository = productRepository;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -61,10 +65,28 @@ public class OrderServiceImpl implements OrderService {
 
             product.setQuantity(product.getQuantity() - itemReq.getQuantity());
             productRepository.save(product);
+
+            // Notify Seller
+            notificationService.createNotification(
+                    product.getSeller().getId(),
+                    "New order received for product: " + product.getName() + " (Qty: " + itemReq.getQuantity() + ")");
+
+            // Low Stock Alert
+            if (product.getQuantity() <= product.getStockThreshold()) {
+                notificationService.createNotification(
+                        product.getSeller().getId(),
+                        "🚨 LOW STOCK ALERT: " + product.getName() + " only has " + product.getQuantity() + " left!");
+            }
         }
 
         order.setTotalAmount(totalAmount);
         Order savedOrder = orderRepository.save(order);
+
+        // Notify Buyer
+        notificationService.createNotification(
+                buyer.getId(),
+                "Order #" + savedOrder.getId() + " placed successfully!");
+
         return mapToResponse(savedOrder);
     }
 
@@ -101,6 +123,12 @@ public class OrderServiceImpl implements OrderService {
         order.setUpdatedAt(LocalDateTime.now());
 
         Order updatedOrder = orderRepository.save(order);
+
+        // Notify Buyer about Status change
+        notificationService.createNotification(
+                order.getBuyer().getId(),
+                "Your Order #" + order.getId() + " status is now: " + status.name());
+
         return mapToResponse(updatedOrder);
     }
 

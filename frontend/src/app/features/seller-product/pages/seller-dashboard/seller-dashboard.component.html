@@ -4,17 +4,64 @@
       <h2>Seller Dashboard</h2>
       <p>Manage your catalog, pricing, and stock in one place.</p>
     </div>
-    <button class="add-product-btn" (click)="clear()">Add Product</button>
+    <button class="btn-premium btn-primary add-product-btn" (click)="clear()">Add Product</button>
   </div>
 
-  <app-product-form
-    [product]="selectedProduct"
-    (onSaved)="onSaved()">
+  <!-- Dashboard Overview Widgets -->
+  <div class="dashboard-widgets">
+    <!-- Total Sales -->
+    <div class="widget-card glass-panel metric-card">
+      <div class="metric-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          class="feather feather-dollar-sign">
+          <line x1="12" y1="1" x2="12" y2="23"></line>
+          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+        </svg>
+      </div>
+      <div class="metric-info">
+        <h3>Total Sales</h3>
+        <p class="metric-value">₹{{ totalSales | number:'1.0-0' }}</p>
+      </div>
+    </div>
+
+    <!-- Total Orders -->
+    <div class="widget-card glass-panel metric-card">
+      <div class="metric-icon blue">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          class="feather feather-shopping-bag">
+          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <path d="M16 10a4 4 0 0 1-8 0"></path>
+        </svg>
+      </div>
+      <div class="metric-info">
+        <h3>Total Orders</h3>
+        <p class="metric-value">{{ totalOrders }}</p>
+      </div>
+    </div>
+
+    <!-- Inventory / Low Stock -->
+    <div class="widget-card glass-panel metric-card" [class.alert]="lowStockItems.length > 0">
+      <div class="metric-icon red">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+          <line x1="12" y1="9" x2="12" y2="13"></line>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+      </div>
+      <div class="metric-info">
+        <h3>Low Stock Alerts</h3>
+        <p class="metric-value" [class.red-text]="lowStockItems.length > 0">{{ lowStockItems.length }} Items</p>
+      </div>
+    </div>
+  </div>
+
+  <app-product-form [product]="selectedProduct" (onSaved)="onSaved()">
   </app-product-form>
 
-  <app-product-list
-    [products]="products"
-    (editProduct)="edit($event)"
-    (productDeleted)="loadProducts()">
+  <app-product-list [products]="products" (editProduct)="edit($event)" (productDeleted)="loadProducts()">
   </app-product-list>
 </section>

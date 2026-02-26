@@ -1,7 +1,48 @@
 <div class="product-dashboard container animate-fade">
   <div class="dashboard-header">
-    <h2 class="outfit">Curated Collections</h2>
+    <h2 class="outfit">Buyer Dashboard</h2>
     <p>Discover our range of premium products tailored for you.</p>
+  </div>
+
+  <!-- Dashboard Widgets Row -->
+  <div class="dashboard-widgets" *ngIf="recentOrders.length || recentFavorites.length">
+
+    <!-- Recent Orders Widget -->
+    <div class="widget-card glass-panel" *ngIf="recentOrders.length">
+      <h3>Recent Orders</h3>
+      <div class="widget-list">
+        <div class="widget-item" *ngFor="let order of recentOrders">
+          <div class="widget-item-info">
+            <strong>Order #{{order.orderId}}</strong>
+            <span>{{order.orderDate | date:'mediumDate'}}</span>
+          </div>
+          <div class="widget-item-status" [ngClass]="order.status.toLowerCase()">
+            {{order.status}}
+          </div>
+        </div>
+      </div>
+      <a routerLink="/buyer/orders" class="widget-link">View All Orders →</a>
+    </div>
+
+    <!-- Recent Favorites Widget -->
+    <div class="widget-card glass-panel" *ngIf="recentFavorites.length">
+      <h3>Recent Favorites</h3>
+      <div class="widget-list">
+        <div class="widget-item" *ngFor="let fav of recentFavorites">
+          <div class="widget-item-info">
+            <strong>{{fav.product.name}}</strong>
+            <span>₹{{fav.product.price}}</span>
+          </div>
+          <button class="btn-sm btn-primary" (click)="addToCart(fav.product)">Buy</button>
+        </div>
+      </div>
+      <a routerLink="/buyer/favorites" class="widget-link">View All Favorites →</a>
+    </div>
+
+  </div>
+
+  <div class="dashboard-header">
+    <h3 class="outfit">Curated Collections</h3>
   </div>
 
   <!-- Product Grid -->
