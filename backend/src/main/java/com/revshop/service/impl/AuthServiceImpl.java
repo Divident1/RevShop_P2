@@ -1,5 +1,5 @@
 package com.revshop.service.impl;
-
+import com.revshop.util.JwtUtil;
 import com.revshop.dto.*;
 import com.revshop.model.User;
 import com.revshop.repository.UserRepository;
@@ -51,6 +51,7 @@ public class AuthServiceImpl implements AuthService {
     // =========================
     // LOGIN
     // =========================
+
     @Override
     public String login(LoginRequest request) {
 
@@ -61,10 +62,7 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Invalid password");
         }
 
-        // generate JWT token
-        String token = JwtUtil.generateToken(user.getEmail());
-
-        return token;
+        return JwtUtil.generateToken(user.getEmail());
     }
 
     // =========================
