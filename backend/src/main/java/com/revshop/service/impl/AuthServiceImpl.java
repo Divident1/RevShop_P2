@@ -5,6 +5,7 @@ import com.revshop.model.User;
 import com.revshop.repository.UserRepository;
 import com.revshop.service.AuthService;
 
+import com.revshop.util.JwtUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -60,7 +61,10 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Invalid password");
         }
 
-        return "Login successful";
+        // generate JWT token
+        String token = JwtUtil.generateToken(user.getEmail());
+
+        return token;
     }
 
     // =========================

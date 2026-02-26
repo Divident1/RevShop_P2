@@ -27,7 +27,9 @@ public class AuthController {
     // LOGIN
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginRequest request) {
+
         return ResponseEntity.ok(authService.login(request));
+
     }
 
     // RESET PASSWORD (THIS IS YOUR FORGOT PASSWORD LOGIC)
