@@ -69,7 +69,13 @@ export class AuthPageComponent implements OnInit{
         next: (res:any) => {
 
           this.message = "Login successful";
-          this.router.navigate(['/seller']);
+          const role=res.role;
+
+          if(role==='SELLER'){
+            this.router.navigate(['/seller']);
+          }else{
+            this.router.navigate(['/orders']);
+          }
         },
         error: (err:any) => {
           this.error = err.error;

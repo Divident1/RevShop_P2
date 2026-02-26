@@ -34,8 +34,9 @@ public class Product {
     @Column(nullable = false)
     private Integer quantity;
 
-    @Column(nullable = false)
-    private Long sellerId;
+    @ManyToOne
+    @JoinColumn(name="seller_id",nullable=false)
+    private User seller;
 
     private Boolean isActive = true;
 

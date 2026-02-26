@@ -33,10 +33,16 @@ export class ProductListComponent{
     delete(id?: number) {
       if (!id) return;
       if (confirm('Are you sure you want to delete this product?')) {
-        this.productService.deleteProduct(id).subscribe(() => {
-          alert('Deleted!');
-          this.productDeleted.emit();
-//           this.loadProducts();
+        this.productService.deleteProduct(id).subscribe({
+          next: () => {
+            alert('Deleted!');
+            this.productDeleted.emit();
+          },
+          error: (err) => {
+            const message = err?.error?.message || err?.error || 'Failed to delete product';
+            alert(message);
+            console.error('Product delete failed', err);
+          }
         });
       }
     }

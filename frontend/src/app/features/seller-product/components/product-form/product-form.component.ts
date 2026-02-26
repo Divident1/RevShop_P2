@@ -31,14 +31,20 @@ export class ProductFormComponent implements OnChanges {
      // Ensure sellerId is always current user
      this.form.sellerId = this.authService.currentUser.id;
 
-     if (this.form.id && this.form.id > 0) {
+     if (this.form.id ){
        // Update existing product
        this.productService.updateProduct(this.form.id, this.form)
-         .subscribe(() => this.onSaveSuccess('Updated!'));
+         .subscribe({
+           next: () => this.onSaveSuccess('Updated!'),
+           error: (err) => this.onSaveError(err)
+         });
      } else {
        // Add new product
        this.productService.addProduct(this.form)
-       .subscribe(() => this.onSaveSuccess('Added!'));
+       .subscribe({
+         next: () => this.onSaveSuccess('Added!'),
+         error: (err) => this.onSaveError(err)
+       });
      }
    }
 
@@ -47,6 +53,12 @@ export class ProductFormComponent implements OnChanges {
      this.onSaved.emit();
      this.form = this.emptyForm();
    }
+
+  private onSaveError(err: any) {
+    const message = err?.error?.message || err?.error || 'Failed to save product';
+    alert(message);
+    console.error('Product save failed', err);
+  }
 
 
   private emptyForm(): Product {

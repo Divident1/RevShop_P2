@@ -6,6 +6,7 @@ import com.revshop.dto.ThresholdRequest;
 import com.revshop.exception.ForbiddenException;
 import com.revshop.exception.ResourceNotFoundException;
 import com.revshop.model.Product;
+import com.revshop.model.User;
 import com.revshop.repository.ProductRepository;
 import com.revshop.service.ProductService;
 import org.apache.logging.log4j.LogManager;
@@ -15,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import com.revshop.security.CustomerUserDetails;
+import com.revshop.repository.UserRepository;
 
 import java.util.List;
 
@@ -26,11 +28,20 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private ProductRepository productRepository;
 
-    public Product addProduct(ProductRequest request,Long loggedInSellerId) {
+    @Autowired
+    private UserRepository userRepository;
+
+    public Product addProduct(ProductRequest request) {
+
+        Long sellerId = resolveSellerId(request.getSellerId());
 
         if (request.getPrice() > request.getMrp()) {
             throw new IllegalArgumentException("Price cannot exceed MRP");
         }
+
+        User seller = userRepository.findById(sellerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Seller not found"));
+
 
         Product product = new Product();
         product.setName(request.getName());
@@ -39,25 +50,26 @@ public class ProductServiceImpl implements ProductService {
         product.setMrp(request.getMrp());
         product.setCategory(request.getCategory());
         product.setQuantity(request.getQuantity());
-        product.setSellerId(request.getSellerId());
+        product.setSeller(seller);
         product.setStockThreshold(5);
 
         double discount = ((request.getMrp() - request.getPrice()) / request.getMrp()) * 100;
         product.setDiscountPercentage(discount);
 
-        logger.info("Seller {} adding product: {}",loggedInSellerId, request.getName());
+        logger.info("Seller {} adding product: {}",sellerId, request.getName());
 
         return productRepository.save(product);
     }
 
-    public Product updateProduct(Long id, ProductUpdateRequest request, Long loggedInSellerId) {
+    public Product updateProduct(Long id, ProductUpdateRequest request) {
+
+        Long sellerId = resolveSellerId(request.getSellerId());
 
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
-        //Long sellerId = getCurrentUserId();
 
-        if (!product.getSellerId().equals(loggedInSellerId)) {
+        if (!product.getSeller().getId().equals(sellerId)) {
             throw new ForbiddenException("You are not the owner of this product");
         }
 
@@ -79,13 +91,14 @@ public class ProductServiceImpl implements ProductService {
 
         return productRepository.save(product);
     }
-    public void deleteProduct(Long id,Long loggedInSellerId) {
+    public void deleteProduct(Long id, Long sellerIdFromRequest) {
+
+        Long sellerId = resolveSellerId(sellerIdFromRequest);
 
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
-
-        if (loggedInSellerId!=null && !product.getSellerId().equals(loggedInSellerId)) {
+        if (!product.getSeller().getId().equals(sellerId)) {
             throw new ForbiddenException("You are not the owner of this product");
         }
 
@@ -94,16 +107,15 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product setStockThreshold(Long productId, ThresholdRequest request,Long loggedInSellerId) {
+    public Product setStockThreshold(Long productId, ThresholdRequest request) {
+
+        Long sellerId= getCurrentSellerId();
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
-        //Long sellerId = getCurrentUserId();
-
-        // owner check
-        if (!product.getSellerId().equals(loggedInSellerId)){
-            throw new ForbiddenException("Only product owner can set threshold");
+        if (!product.getSeller().getId().equals(sellerId)) {
+            throw new ForbiddenException("Only owner can set threshold");
         }
 
         product.setStockThreshold(request.getThreshold());
@@ -120,6 +132,23 @@ public class ProductServiceImpl implements ProductService {
                     product.getName(),
                     product.getQuantity());
         }
+    }
+
+    private Long getCurrentSellerId() {
+        return resolveSellerId(null);
+    }
+
+    private Long resolveSellerId(Long fallbackSellerId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof CustomerUserDetails user) {
+            return user.getId();
+        }
+
+        if (fallbackSellerId != null) {
+            return fallbackSellerId;
+        }
+
+        throw new ForbiddenException("Seller authentication required");
     }
 
     public List<Product> getAllProducts() {

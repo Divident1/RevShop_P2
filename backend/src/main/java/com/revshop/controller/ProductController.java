@@ -25,7 +25,7 @@ public class ProductController {
     public ResponseEntity<Product> addProduct(
             @Valid @RequestBody ProductRequest request) {
 
-        Product product = productService.addProduct(request, request.getSellerId());
+        Product product = productService.addProduct(request);
         return new ResponseEntity<>(product, HttpStatus.CREATED);
     }
     // UPDATE PRODUCT
@@ -34,7 +34,7 @@ public class ProductController {
             @PathVariable Long id,
             @Valid @RequestBody ProductUpdateRequest request) {
 
-        Product updated = productService.updateProduct(id, request,request.getSellerId());
+        Product updated = productService.updateProduct(id, request);
         return ResponseEntity.ok(updated); // 200
     }
 
@@ -44,7 +44,7 @@ public class ProductController {
             @PathVariable Long id,
             @RequestParam(required = false) Long sellerId) {
 
-        productService.deleteProduct(id,sellerId);
+        productService.deleteProduct(id, sellerId);
         return ResponseEntity.noContent().build();
     }
 
@@ -53,7 +53,7 @@ public class ProductController {
             @PathVariable Long id,
             @Valid @RequestBody ThresholdRequest request) {
 
-        Product updated = productService.setStockThreshold(id, request, request.getSellerId());
+        Product updated = productService.setStockThreshold(id, request);
         return ResponseEntity.ok(updated);
     }
 

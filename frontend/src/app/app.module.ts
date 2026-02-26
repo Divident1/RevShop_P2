@@ -17,7 +17,7 @@ import { FavoritesComponent } from './features/favorites/favorites/favorites.com
 @NgModule({
   declarations: [
     AppComponent,
-    AuthPageComponent
+    AuthPageComponent,
 //     SellerDashboardComponent,
 //     ProductFormComponent
     AuthPageComponent,

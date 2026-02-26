@@ -30,8 +30,8 @@ export class SellerDashboardComponent implements OnInit{
       const sellerId = this.authService.currentUser.id;
       this.productService.getAllProducts().subscribe((allProducts) => {
         // Only show products for logged-in seller
-        const sellerId = this.authService.currentUser!.id;
-        this.products = allProducts.filter(p => p.sellerId === sellerId);
+        //const sellerId = this.authService.currentUser!.id;
+        this.products = allProducts.filter(p => Number(p.sellerId) === Number(sellerId));
       });
     }
   edit(product: Product) {
