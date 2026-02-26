@@ -9,50 +9,54 @@ import { OrderService } from '../../../core/order.service';
 })
 export class PaymentPageComponent {
 
-  orderId:any;
+  orderId: string = '';
 
-  paymentMethod='COD';
+  paymentMethod = 'COD';
+  isProcessing = false;
+  message = '';
+  isError = false;
 
   constructor(
-
-    private route:ActivatedRoute,
-
-    private orderService:OrderService,
-
-    private router:Router
-
-  ){
-
-    this.orderId=this.route.snapshot.queryParamMap.get('orderId');
-
+    private route: ActivatedRoute,
+    private orderService: OrderService,
+    private router: Router
+  ) {
+    this.orderId = this.route.snapshot.queryParamMap.get('orderId') || '';
   }
 
-  pay(){
+  pay(): void {
+    this.message = '';
+    this.isError = false;
+
+    if (!this.orderId) {
+      this.isError = true;
+      this.message = 'Missing order id. Please place order again.';
+      return;
+    }
+
+    this.isProcessing = true;
 
     this.orderService.makePayment({
-
-      orderId:this.orderId,
-
-      paymentMethod:this.paymentMethod
-
+      orderId: this.orderId,
+      paymentMethod: this.paymentMethod
     }).subscribe({
+      next: (response) => {
+        this.isProcessing = false;
 
-      next:()=>{
+        if (response.paymentStatus === 'SUCCESS') {
+          this.message = response.message || 'Payment successful.';
+          this.router.navigate(['/confirmation']);
+          return;
+        }
 
-        alert("Payment Success");
-
-        this.router.navigate(['/confirmation']);
-
+        this.isError = true;
+        this.message = response.message || 'Payment failed. Please try again.';
       },
-
-      error:()=>{
-
-        alert("Payment Failed");
-
+      error: () => {
+        this.isProcessing = false;
+        this.isError = true;
+        this.message = 'Payment request failed. Please try again.';
       }
-
     });
-
   }
-
 }

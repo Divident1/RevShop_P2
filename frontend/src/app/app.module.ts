@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { AuthPageComponent } from './features/auth/auth-page/auth-page.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CheckoutPageComponent } from './features/checkout/checkout-page/checkout-page.component';
 import { PaymentPageComponent } from './features/payment/payment-page/payment-page.component';
@@ -12,7 +11,6 @@ import { OrderConfirmationComponent } from './features/order-confirmation/order-
 @NgModule({
   declarations: [
     AppComponent,
-    AuthPageComponent,
     CheckoutPageComponent,
     PaymentPageComponent,
     OrderConfirmationComponent

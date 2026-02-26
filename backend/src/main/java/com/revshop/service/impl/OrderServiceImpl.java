@@ -28,9 +28,9 @@ public class OrderServiceImpl implements OrderService {
 
         Order order = Order.builder()
                 .orderId(orderId)
-                .userId(request.getUserId())
+                .name(request.getName())
+                .phoneNumber(request.getPhoneNumber())
                 .shippingAddress(request.getShippingAddress())
-                .billingAddress(request.getBillingAddress())
                 .totalAmount(request.getTotalAmount())
                 .orderStatus("CREATED")
                 .paymentStatus("PENDING")

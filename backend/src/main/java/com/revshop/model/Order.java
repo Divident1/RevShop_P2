@@ -19,9 +19,11 @@ public class Order {
 
     private String userId;
 
-    private String shippingAddress;
+    private String name;
 
-    private String billingAddress;
+    private String phoneNumber;
+
+    private String shippingAddress;
 
     private Double totalAmount;
 

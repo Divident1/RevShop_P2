@@ -1,6 +1,7 @@
 package com.revshop.controller;
 
 import com.revshop.dto.*;
+import jakarta.validation.Valid;
 import com.revshop.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +19,7 @@ public class OrderController {
 
     @PostMapping("/checkout")
     public OrderResponseDto checkout(
-            @RequestBody CheckoutRequestDto request){
+            @Valid @RequestBody CheckoutRequestDto request){
 
         return orderService.checkout(request);
 
