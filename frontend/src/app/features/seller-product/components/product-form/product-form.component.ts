@@ -63,7 +63,7 @@ export class ProductFormComponent implements OnChanges {
 
   private emptyForm(): Product {
     return {
-      id: 0, // ensure 0 or undefined for new product
+        id: 0, // ensure 0 or undefined for new product
       name: '',
       description: '',
       price: 0,
