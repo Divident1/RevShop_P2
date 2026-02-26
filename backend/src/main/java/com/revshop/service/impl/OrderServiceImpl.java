@@ -69,7 +69,8 @@ public class OrderServiceImpl implements OrderService {
             // Notify Seller
             notificationService.createNotification(
                     product.getSeller().getId(),
-                    "New order received for product: " + product.getName() + " (Qty: " + itemReq.getQuantity() + ")");
+                    "🎉 New Order Received! Someone just bought " + itemReq.getQuantity() + "x of your '"
+                            + product.getName() + "'.");
 
             // Low Stock Alert
             if (product.getQuantity() <= product.getStockThreshold()) {
@@ -85,7 +86,8 @@ public class OrderServiceImpl implements OrderService {
         // Notify Buyer
         notificationService.createNotification(
                 buyer.getId(),
-                "Order #" + savedOrder.getId() + " placed successfully!");
+                "✅ Thank you for your purchase! Your Order #" + savedOrder.getId()
+                        + " has been placed successfully and given to the seller.");
 
         return mapToResponse(savedOrder);
     }
@@ -125,9 +127,16 @@ public class OrderServiceImpl implements OrderService {
         Order updatedOrder = orderRepository.save(order);
 
         // Notify Buyer about Status change
-        notificationService.createNotification(
-                order.getBuyer().getId(),
-                "Your Order #" + order.getId() + " status is now: " + status.name());
+        String customMessage = "Update on Order #" + order.getId() + ": Status changed to " + status.name();
+        if (status == OrderStatus.SHIPPED) {
+            customMessage = "📦 Good News! Your Order #" + order.getId() + " has been SHIPPED.";
+        } else if (status == OrderStatus.DELIVERED) {
+            customMessage = "🏡 Delivered! Your Order #" + order.getId() + " has arrived safely. Thanks for shopping!";
+        } else if (status == OrderStatus.CANCELLED) {
+            customMessage = "❌ Order #" + order.getId() + " has been CANCELLED.";
+        }
+
+        notificationService.createNotification(order.getBuyer().getId(), customMessage);
 
         return mapToResponse(updatedOrder);
     }
