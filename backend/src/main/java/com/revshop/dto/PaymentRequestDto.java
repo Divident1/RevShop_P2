@@ -1,7 +1,5 @@
 package com.revshop.dto;
 
-import lombok.Data;
-
 public class PaymentRequestDto {
 
     private String orderId;

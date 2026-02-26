@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ReviewService, Review, ReviewRequest } from '../../../core/services/review.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
     selector: 'app-product-reviews',
@@ -9,7 +10,7 @@ import { ReviewService, Review, ReviewRequest } from '../../../core/services/rev
 export class ProductReviewsComponent implements OnInit {
 
     @Input() productId: number = 0;
-    @Input() buyerId: number = 1; // TODO: Get from auth
+    buyerId: number = 0;
 
     reviews: Review[] = [];
     averageRating: number = 0;
@@ -25,9 +26,14 @@ export class ProductReviewsComponent implements OnInit {
         comment: ''
     };
 
-    constructor(private reviewService: ReviewService) { }
+    constructor(private reviewService: ReviewService, private authService: AuthService) { }
 
     ngOnInit(): void {
+        this.authService.currentUser$.subscribe(user => {
+            if (user) {
+                this.buyerId = user.id;
+            }
+        });
         this.loadReviews();
         this.loadAverageRating();
     }

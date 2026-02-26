@@ -63,7 +63,9 @@
 
       <div class="product-info">
         <div class="category-tag">{{ p.categoryName || 'Electronics' }}</div>
-        <h3 class="product-name">{{p.name}}</h3>
+        <a [routerLink]="['/buyer/product', p.id]" class="product-name-link">
+          <h3 class="product-name">{{p.name}}</h3>
+        </a>
         <p class="product-desc">{{p.description}}</p>
 
         <div class="product-bottom">
