@@ -60,7 +60,7 @@ export class ProductService {
       category: product.category,
       quantity: product.quantity,
       sellerId: product.sellerId ?? product.seller?.id ?? 0,
-      isActive: product.isActive,
+      active: product.active,
       stockThreshold: product.stockThreshold
     };
   }
