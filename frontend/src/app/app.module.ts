@@ -35,8 +35,6 @@ import { OrderConfirmationComponent } from './features/order-confirmation/order-
 import { ProductListComponent } from './features/buyer/product-list/product-list.component';
 import { ProductSearchComponent } from './features/buyer/product-search/product-search.component';
 import { ProductDetailsComponent } from './features/buyer/product-details/product-details.component';
-import { SellerProductsComponent } from './features/seller/seller-products/seller-products.component';
-import { AddProductComponent } from './features/seller/add-product/add-product.component';
 
 // Pavan's components
 import { CartComponent } from './features/cart/cart-page/cart.component';
@@ -77,8 +75,6 @@ export class AuthInterceptor implements HttpInterceptor {
     ProductListComponent,
     ProductSearchComponent,
     ProductDetailsComponent,
-    SellerProductsComponent,
-    AddProductComponent,
     CartComponent
   ],
   imports: [
