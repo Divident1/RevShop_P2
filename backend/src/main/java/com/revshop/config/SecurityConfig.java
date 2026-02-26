@@ -28,6 +28,7 @@ public class SecurityConfig {
                                                 .requestMatchers("/api/reviews/**").permitAll()
                                                 .requestMatchers("/api/favorites/**").permitAll()
                                                 .requestMatchers("/api/cart/**").permitAll()
+                                                .requestMatchers("/api/notifications/**").permitAll()
                                                 .anyRequest().authenticated())
                                 .cors(cors -> {
                                 })

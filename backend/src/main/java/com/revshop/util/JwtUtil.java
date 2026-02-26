@@ -10,17 +10,17 @@ import java.util.Date;
 
 public class JwtUtil {
 
-    private static final SecretKey KEY =
-            Keys.hmacShaKeyFor("mysecretkeymysecretkeymysecretkey12".getBytes());
+    private static final SecretKey KEY = Keys.hmacShaKeyFor("mysecretkeymysecretkeymysecretkey12".getBytes());
 
     private static final long EXPIRATION = 86400000;
 
     // generate token with role
-    public static String generateToken(String email, String role) {
+    public static String generateToken(String email, String role, Long userId) {
 
         return Jwts.builder()
                 .setSubject(email)
                 .claim("role", role)
+                .claim("userId", userId)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
                 .signWith(KEY, SignatureAlgorithm.HS256)
