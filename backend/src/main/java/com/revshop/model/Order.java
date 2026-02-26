@@ -2,6 +2,7 @@ package com.revshop.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,13 +31,13 @@ public class Order {
     private String shippingAddress;
     private String billingAddress;
 
-    // Anusha's additional fields
     private String name;
     private String phoneNumber;
     private String paymentMethod;
     private String paymentStatus = "PENDING";
     private LocalDateTime orderDate = LocalDateTime.now();
     private LocalDateTime updatedAt;
+    private LocalDateTime createdAt;
 
     public Order() {
     }
@@ -44,7 +45,6 @@ public class Order {
     public Long getId() {
         return id;
     }
-
 
     public void setId(Long id) {
         this.id = id;
@@ -130,6 +130,14 @@ public class Order {
         this.updatedAt = updatedAt;
     }
 
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
     public String getName() {
         return name;
     }
@@ -150,6 +158,4 @@ public class Order {
         orderItems.add(item);
         item.setOrder(this);
     }
-
-    private LocalDateTime createdAt;
 }

@@ -9,6 +9,7 @@ import lombok.Data;
 @Data
 public class CheckoutRequestDto {
 
+    @NotBlank(message = "User ID is required")
     private String userId;
 
     @NotBlank(message = "Name is required")

@@ -2,6 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { CheckoutRequest, OrderService } from '../../../core/order.service';
+import { CartService } from '../../../core/services/cart.service';
+
+interface CheckoutFormState {
+  name: string;
+  phoneNumber: string;
+  shippingAddress: string;
+  totalAmount: number;
+}
 
 @Component({
   selector: 'app-checkout-page',
@@ -10,7 +18,7 @@ import { CheckoutRequest, OrderService } from '../../../core/order.service';
 })
 export class CheckoutPageComponent implements OnInit {
 
-  order: CheckoutRequest = {
+  order: CheckoutFormState = {
     name: '',
     phoneNumber: '',
     shippingAddress: '',
@@ -20,15 +28,19 @@ export class CheckoutPageComponent implements OnInit {
   itemCount = 1;
   isSubmitting = false;
   errorMessage = '';
+  private readonly cartUserId = 3;
+  private buyerUserId = '3';
 
   constructor(
     private route: ActivatedRoute,
     private orderService: OrderService,
+    private cartService: CartService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
     this.prefillBuyerDetails();
+    this.setAmountFromCartService();
 
     this.route.queryParamMap.subscribe(() => {
       this.setDefaultAmount();
@@ -48,12 +60,16 @@ export class CheckoutPageComponent implements OnInit {
         const parsed = JSON.parse(raw);
         const name = String(parsed?.name ?? parsed?.username ?? parsed?.fullName ?? '').trim();
         const phone = String(parsed?.phoneNumber ?? parsed?.phone ?? parsed?.mobile ?? '').trim();
+        const userId = String(parsed?.id ?? parsed?.userId ?? parsed?.buyerId ?? '').trim();
 
         if (name && !this.order.name) {
           this.order.name = name;
         }
         if (phone && !this.order.phoneNumber) {
           this.order.phoneNumber = phone;
+        }
+        if (userId && this.buyerUserId === '3') {
+          this.buyerUserId = userId;
         }
       } catch {
         // Ignore malformed user JSON and continue fallback checks.
@@ -62,6 +78,7 @@ export class CheckoutPageComponent implements OnInit {
 
     const directNameKeys = ['buyerName', 'userName', 'name'];
     const directPhoneKeys = ['buyerPhoneNumber', 'phoneNumber', 'userPhone', 'phone'];
+    const directUserIdKeys = ['buyerId', 'userId', 'currentUserId'];
 
     for (const key of directNameKeys) {
       if (this.order.name) {
@@ -80,6 +97,16 @@ export class CheckoutPageComponent implements OnInit {
       const value = localStorage.getItem(key);
       if (value?.trim()) {
         this.order.phoneNumber = value.trim();
+      }
+    }
+
+    for (const key of directUserIdKeys) {
+      if (this.buyerUserId !== '3') {
+        break;
+      }
+      const value = localStorage.getItem(key);
+      if (value?.trim()) {
+        this.buyerUserId = value.trim();
       }
     }
   }
@@ -115,6 +142,24 @@ export class CheckoutPageComponent implements OnInit {
     }
   }
 
+  private setAmountFromCartService(): void {
+    this.cartService.getCart(this.cartUserId).subscribe({
+      next: (cart) => {
+        const total = Number(cart?.totalPrice ?? 0);
+        const count = Number(cart?.totalItems ?? 0);
+        if (Number.isFinite(total) && total > 0) {
+          this.order.totalAmount = +total.toFixed(2);
+        }
+        if (Number.isFinite(count) && count > 0) {
+          this.itemCount = count;
+        }
+      },
+      error: () => {
+        // Ignore cart API errors and rely on query/localStorage fallback.
+      }
+    });
+  }
+
   private getAmountFromSelectedProduct(): number {
     const raw = localStorage.getItem('selectedProduct');
     if (!raw) {
@@ -143,7 +188,15 @@ export class CheckoutPageComponent implements OnInit {
   }
 
   private getAmountFromLocalCart(): number {
-    const keys = ['revshop_cart_total', 'cartTotal', 'totalAmount', 'revshop_cart'];
+    const keys = [
+      'revshop_cart_total',
+      'cartTotal',
+      'totalAmount',
+      'revshop_cart',
+      'cart',
+      'cartItems',
+      'items'
+    ];
 
     for (const key of keys) {
       const raw = localStorage.getItem(key);
@@ -151,35 +204,129 @@ export class CheckoutPageComponent implements OnInit {
         continue;
       }
 
-      if (key !== 'revshop_cart') {
-        const value = Number(raw);
-        if (Number.isFinite(value) && value > 0) {
-          return +value.toFixed(2);
-        }
-        continue;
+      const numberFromRaw = this.parsePositiveNumber(raw);
+      if (numberFromRaw > 0) {
+        return numberFromRaw;
       }
 
       try {
         const parsed = JSON.parse(raw);
-        if (!Array.isArray(parsed)) {
-          continue;
+
+        const structuredTotal = this.getTotalFromStructuredCart(parsed);
+        if (structuredTotal > 0) {
+          return structuredTotal;
         }
 
-        const total = parsed.reduce((sum, item) => {
-          const price = Number(item?.price ?? item?.amount ?? 0);
-          const qty = Number(item?.quantity ?? 1);
-          if (!Number.isFinite(price) || !Number.isFinite(qty) || price <= 0 || qty <= 0) {
-            return sum;
+        if (typeof parsed === 'object' && parsed !== null) {
+          const parsedRecord = parsed as Record<string, unknown>;
+          const nestedTotal = this.parsePositiveNumber(
+            parsedRecord['total'] ??
+            parsedRecord['cartTotal'] ??
+            parsedRecord['totalAmount'] ??
+            parsedRecord['grandTotal']
+          );
+          if (nestedTotal > 0) {
+            return nestedTotal;
           }
-          return sum + price * qty;
-        }, 0);
-
-        if (total > 0) {
-          return +total.toFixed(2);
         }
       } catch {
         // Ignore malformed cart JSON and keep searching.
       }
+    }
+
+    return 0;
+  }
+
+  private getTotalFromStructuredCart(parsed: unknown): number {
+    const items = this.extractCartItems(parsed);
+    if (items.length === 0) {
+      return 0;
+    }
+
+    let total = 0;
+    let itemCount = 0;
+
+    for (const item of items) {
+      if (typeof item !== 'object' || item === null) {
+        continue;
+      }
+
+      const itemRecord = item as Record<string, unknown>;
+      const quantity = this.parsePositiveNumber(
+        itemRecord['quantity'] ??
+        itemRecord['qty'] ??
+        itemRecord['count'] ??
+        1
+      ) || 1;
+
+      const unitPrice = this.parsePositiveNumber(
+        itemRecord['price'] ??
+        itemRecord['amount'] ??
+        itemRecord['productPrice'] ??
+        itemRecord['unitPrice'] ??
+        itemRecord['sellingPrice']
+      );
+
+      const lineTotal = this.parsePositiveNumber(
+        itemRecord['lineTotal'] ??
+        itemRecord['total'] ??
+        itemRecord['totalAmount'] ??
+        itemRecord['itemTotal']
+      );
+
+      if (unitPrice > 0) {
+        total += unitPrice * quantity;
+        itemCount += quantity;
+        continue;
+      }
+
+      if (lineTotal > 0) {
+        total += lineTotal;
+        itemCount += quantity;
+      }
+    }
+
+    if (total > 0) {
+      this.itemCount = itemCount > 0 ? itemCount : this.itemCount;
+      return +total.toFixed(2);
+    }
+
+    return 0;
+  }
+
+  private extractCartItems(parsed: unknown): unknown[] {
+    if (Array.isArray(parsed)) {
+      return parsed;
+    }
+
+    if (typeof parsed !== 'object' || parsed === null) {
+      return [];
+    }
+
+    const record = parsed as Record<string, unknown>;
+    const candidates = [record['items'], record['cartItems'], record['products'], record['cart']];
+
+    for (const candidate of candidates) {
+      if (Array.isArray(candidate)) {
+        return candidate;
+      }
+    }
+
+    return [];
+  }
+
+  private parsePositiveNumber(value: unknown): number {
+    if (typeof value === 'number') {
+      return Number.isFinite(value) && value > 0 ? +value.toFixed(2) : 0;
+    }
+
+    if (typeof value === 'string') {
+      const cleaned = value.replace(/[^\d.-]/g, '');
+      if (!cleaned) {
+        return 0;
+      }
+      const parsed = Number(cleaned);
+      return Number.isFinite(parsed) && parsed > 0 ? +parsed.toFixed(2) : 0;
     }
 
     return 0;
@@ -208,7 +355,14 @@ export class CheckoutPageComponent implements OnInit {
     this.order.name = this.order.name.trim();
     this.order.phoneNumber = this.order.phoneNumber.trim();
 
-    this.orderService.createOrder(this.order).subscribe({
+    const payload: CheckoutRequest = {
+      userId: this.buyerUserId,
+      shippingAddress: this.order.shippingAddress.trim(),
+      billingAddress: this.order.shippingAddress.trim(),
+      totalAmount: this.order.totalAmount
+    };
+
+    this.orderService.createOrder(payload).subscribe({
       next: (response) => {
         this.isSubmitting = false;
         this.router.navigate(['/payment'], {

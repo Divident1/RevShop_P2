@@ -41,6 +41,20 @@ h2 {
   color: var(--muted);
 }
 
+.order-chip {
+  margin: 0 0 18px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(109, 94, 252, 0.08);
+  border: 1px solid rgba(109, 94, 252, 0.24);
+  font-size: 0.9rem;
+  color: #334155;
+}
+
+.order-chip strong {
+  color: var(--text);
+}
+
 label {
   display: block;
   margin: 8px 0;

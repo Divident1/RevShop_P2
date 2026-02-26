@@ -1,7 +1,11 @@
 <section class="payment-shell">
   <div class="payment-card">
     <h2>Payment</h2>
-    <p class="muted">Order ID: {{ orderId || 'N/A' }}</p>
+    <p class="muted">Complete payment to confirm your order.</p>
+
+    <div class="order-chip">
+      Order ID: <strong>{{ orderId || 'N/A' }}</strong>
+    </div>
 
     <label for="paymentMethod">Payment Method</label>
     <select id="paymentMethod" [(ngModel)]="paymentMethod">

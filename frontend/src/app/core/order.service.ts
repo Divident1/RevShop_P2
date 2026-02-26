@@ -3,9 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface CheckoutRequest {
-  name: string;
-  phoneNumber: string;
+  userId: string;
   shippingAddress: string;
+  billingAddress: string;
   totalAmount: number;
 }
 
