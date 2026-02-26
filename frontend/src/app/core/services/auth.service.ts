@@ -9,16 +9,52 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  login(data:any): Observable<any>{
-    return this.http.post(this.baseUrl + "/login", data, { responseType:'text'});
+  login(data:any): Observable<string>{
+
+    return this.http.post(
+      this.baseUrl + "/login",
+      data,
+      { responseType:'text' }
+    );
+
   }
 
-  register(data:any): Observable<any>{
-    return this.http.post(this.baseUrl + "/register", data, { responseType:'text'});
+  register(data:any){
+
+    return this.http.post(
+      this.baseUrl + "/register",
+      data,
+      { responseType:'text' }
+    );
+
   }
 
-  resetPassword(data:any): Observable<any>{
-    return this.http.post(this.baseUrl + "/reset-password", data, { responseType:'text'});
+  resetPassword(data:any){
+
+    return this.http.post(
+      this.baseUrl + "/reset-password",
+      data,
+      { responseType:'text' }
+    );
+
+  }
+
+  saveToken(token:string){
+
+    localStorage.setItem("token", token);
+
+  }
+
+  getToken(){
+
+    return localStorage.getItem("token");
+
+  }
+
+  logout(){
+
+    localStorage.removeItem("token");
+
   }
 
 }

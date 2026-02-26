@@ -41,7 +41,7 @@ export class AuthPageComponent {
 
   role: ['BUYER', Validators.required],
 
-  businessName: ['']   // ADD THIS LINE
+  businessName: ['']   
 
 });
 
@@ -55,33 +55,34 @@ export class AuthPageComponent {
 
   login(){
 
-    if(this.loginForm.invalid){
-      this.loginForm.markAllAsTouched();
-      return;
+  if(this.loginForm.invalid){
+    this.loginForm.markAllAsTouched();
+    return;
+  }
+
+  this.authService.login(this.loginForm.value)
+  .subscribe({
+
+    next:(token:string)=>{
+
+      // ✅ SAVE JWT TOKEN HERE
+      localStorage.setItem("token", token);
+
+      this.message = "Login successful";
+      this.error = "";
+
+    },
+
+    error:(err:any)=>{
+
+      this.error = err.error;
+      this.message = "";
+
     }
 
-    this.authService.login(this.loginForm.value)
-      .subscribe({
+  });
 
-       next: (res:any) => {
-
-  localStorage.setItem("token", res);
-
-  this.message = "Login successful";
-  this.error = '';
-
-},
-
-        error: (err:any) => {
-
-          this.error = err.error;
-          this.message = '';
-
-        }
-
-      });
-
-  }
+}
 
   register() {
 
@@ -95,7 +96,7 @@ export class AuthPageComponent {
 
       next: (res:any) => {
 
-        this.message = res;   // ✅ use backend message
+        this.message = res;  
         this.error = '';
         this.isLogin = true;
 
