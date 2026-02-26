@@ -36,7 +36,7 @@ export class CheckoutPageComponent implements OnInit {
     private orderService: OrderService,
     private cartService: CartService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.prefillBuyerDetails();
@@ -357,6 +357,8 @@ export class CheckoutPageComponent implements OnInit {
 
     const payload: CheckoutRequest = {
       userId: this.buyerUserId,
+      name: this.order.name.trim(),
+      phoneNumber: this.order.phoneNumber.trim(),
       shippingAddress: this.order.shippingAddress.trim(),
       billingAddress: this.order.shippingAddress.trim(),
       totalAmount: this.order.totalAmount

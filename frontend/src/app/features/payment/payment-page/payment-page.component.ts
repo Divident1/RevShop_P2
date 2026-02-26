@@ -45,7 +45,12 @@ export class PaymentPageComponent {
 
         if (response.paymentStatus === 'SUCCESS') {
           this.message = response.message || 'Payment successful.';
-          this.router.navigate(['/confirmation']);
+          this.router.navigate(['/order-confirmation'], {
+            queryParams: {
+              orderId: this.orderId,
+              paymentMethod: this.paymentMethod
+            }
+          });
           return;
         }
 

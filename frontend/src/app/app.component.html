@@ -8,7 +8,6 @@
         <div class="nav-links">
             <a routerLink="/buyer/dashboard" routerLinkActive="active"
                 [routerLinkActiveOptions]="{exact: true}">Products</a>
-            <a routerLink="/buyer/search" routerLinkActive="active">Search</a>
             <a routerLink="/favorites" routerLinkActive="active">Favorites</a>
             <a routerLink="/orders" routerLinkActive="active">Orders</a>
 
@@ -18,6 +17,18 @@
         </div>
 
         <div class="nav-actions">
+            <!-- Search Icon with Expandable Input -->
+            <div class="search-trigger" [class.active]="searchOpen">
+                <input *ngIf="searchOpen" class="search-input" [(ngModel)]="searchQuery"
+                    placeholder="Search products..." (keydown.enter)="doSearch()" #searchInput />
+                <button class="search-btn" (click)="toggleSearch()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.3-4.3"></path>
+                    </svg>
+                </button>
+            </div>
             <!-- Cart Icon with Badge -->
             <div class="cart-trigger" routerLink="/cart">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"

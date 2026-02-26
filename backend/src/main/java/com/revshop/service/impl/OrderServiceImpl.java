@@ -157,7 +157,9 @@ public class OrderServiceImpl implements OrderService {
 
         String paymentMethod = request.getPaymentMethod() == null ? ""
                 : request.getPaymentMethod().trim().toUpperCase();
-        boolean paymentSuccess = "COD".equals(paymentMethod);
+        boolean paymentSuccess = "COD".equals(paymentMethod)
+                || "CREDIT_CARD".equals(paymentMethod)
+                || "DEBIT_CARD".equals(paymentMethod);
 
         if (paymentSuccess) {
             order.setPaymentMethod(paymentMethod);

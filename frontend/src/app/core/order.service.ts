@@ -4,6 +4,8 @@ import { Observable } from 'rxjs';
 
 export interface CheckoutRequest {
   userId: string;
+  name: string;
+  phoneNumber: string;
   shippingAddress: string;
   billingAddress: string;
   totalAmount: number;
@@ -26,7 +28,7 @@ export interface OrderResponse {
 export class OrderService {
   private readonly api = 'http://localhost:8080/api/orders';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   createOrder(order: CheckoutRequest): Observable<OrderResponse> {
     return this.http.post<OrderResponse>(`${this.api}/checkout`, order);

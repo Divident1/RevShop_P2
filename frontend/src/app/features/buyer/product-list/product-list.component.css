@@ -157,6 +157,56 @@
     font-size: 0.85rem;
 }
 
+/* Quantity Counter */
+.qty-counter {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 2px solid var(--primary, #6366f1);
+}
+
+.qty-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.qty-minus {
+    background: #f1f5f9;
+    color: #ef4444;
+}
+
+.qty-minus:hover {
+    background: #fee2e2;
+}
+
+.qty-plus {
+    background: var(--primary, #6366f1);
+    color: #fff;
+}
+
+.qty-plus:hover {
+    background: #4f46e5;
+}
+
+.qty-value {
+    padding: 0 14px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-main, #1a1a2e);
+    min-width: 30px;
+    text-align: center;
+}
+
 /* ── Pagination ──────────────────────────────────── */
 
 .pagination {
