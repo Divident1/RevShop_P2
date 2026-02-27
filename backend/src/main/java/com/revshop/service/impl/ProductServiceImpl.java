@@ -7,6 +7,8 @@ import com.revshop.model.Product;
 import com.revshop.model.User;
 import com.revshop.repository.ProductRepository;
 import com.revshop.repository.UserRepository;
+import com.revshop.repository.CategoryRepository;
+import com.revshop.model.Category;
 import com.revshop.service.ProductService;
 import com.revshop.util.ProductMapper;
 
@@ -21,10 +23,13 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
+    private final CategoryRepository categoryRepository;
 
-    public ProductServiceImpl(ProductRepository productRepository, UserRepository userRepository) {
+    public ProductServiceImpl(ProductRepository productRepository, UserRepository userRepository,
+            CategoryRepository categoryRepository) {
         this.productRepository = productRepository;
         this.userRepository = userRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     // ══════════════════════════════════════════════════════════════════════
@@ -43,7 +48,11 @@ public class ProductServiceImpl implements ProductService {
         product.setDescription(request.getDescription());
         product.setPrice(request.getPrice());
         product.setMrp(request.getMrp());
-        product.setCategoryName(request.getCategory());
+
+        Category category = resolveCategory(request.getCategory());
+        product.setCategory(category);
+        product.setCategoryName(category.getName());
+
         product.setQuantity(request.getQuantity());
         product.setSeller(seller);
         product.setStockThreshold(5);
@@ -64,7 +73,11 @@ public class ProductServiceImpl implements ProductService {
         product.setDescription(request.getDescription());
         product.setPrice(request.getPrice());
         product.setMrp(request.getMrp());
-        product.setCategoryName(request.getCategory());
+
+        Category category = resolveCategory(request.getCategory());
+        product.setCategory(category);
+        product.setCategoryName(category.getName());
+
         product.setQuantity(request.getQuantity());
         product.setDiscountPercentage(calculateDiscount(request.getPrice(), request.getMrp()));
 
@@ -163,5 +176,17 @@ public class ProductServiceImpl implements ProductService {
         }
         // TODO: Replace with JWT auth when implemented properly
         return 1L;
+    }
+
+    private Category resolveCategory(String categoryName) {
+        if (categoryName == null || categoryName.trim().isEmpty()) {
+            categoryName = "Uncategorized";
+        }
+        String finalCategoryName = categoryName;
+        return categoryRepository.findByName(categoryName).orElseGet(() -> {
+            Category newCategory = new Category();
+            newCategory.setName(finalCategoryName);
+            return categoryRepository.save(newCategory);
+        });
     }
 }

@@ -11,6 +11,7 @@ import com.revshop.model.Role;
 import com.revshop.model.User;
 import com.revshop.repository.ProductRepository;
 import com.revshop.repository.UserRepository;
+import com.revshop.repository.CategoryRepository;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -39,6 +40,9 @@ class ProductServiceImplTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private CategoryRepository categoryRepository;
 
     @InjectMocks
     private ProductServiceImpl productService;
@@ -84,6 +88,8 @@ class ProductServiceImplTest {
         request.setSellerId(1L);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(seller));
+        when(categoryRepository.findByName(anyString())).thenReturn(Optional.empty());
+        when(categoryRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
         when(productRepository.save(any(Product.class))).thenReturn(product);
 
         Product result = productService.addProduct(request);
@@ -136,6 +142,8 @@ class ProductServiceImplTest {
         request.setSellerId(1L);
 
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        when(categoryRepository.findByName(anyString())).thenReturn(Optional.empty());
+        when(categoryRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
         when(productRepository.save(any(Product.class))).thenReturn(product);
 
         Product result = productService.updateProduct(1L, request);
