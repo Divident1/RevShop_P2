@@ -6,7 +6,7 @@
         </div>
 
         <div class="nav-links">
-            <ng-container *ngIf="currentUser?.role !== 'SELLER'">
+            <ng-container *ngIf="currentUser && currentUser.role !== 'SELLER'">
                 <a routerLink="/buyer/dashboard" routerLinkActive="active"
                     [routerLinkActiveOptions]="{exact: true}">Products</a>
                 <a routerLink="/favorites" routerLinkActive="active">Favorites</a>
@@ -21,7 +21,8 @@
 
         <div class="nav-actions">
             <!-- Search Icon with Expandable Input (Buyer Only) -->
-            <div class="search-trigger" [class.active]="searchOpen" *ngIf="currentUser?.role !== 'SELLER'">
+            <div class="search-trigger" [class.active]="searchOpen"
+                *ngIf="currentUser && currentUser.role !== 'SELLER'">
                 <input *ngIf="searchOpen" class="search-input" [(ngModel)]="searchQuery"
                     placeholder="Search products..." (keydown.enter)="doSearch()" #searchInput />
                 <button class="search-btn" (click)="toggleSearch()">
@@ -33,7 +34,7 @@
                 </button>
             </div>
             <!-- Cart Icon with Badge (Buyer Only) -->
-            <div class="cart-trigger" routerLink="/cart" *ngIf="currentUser?.role !== 'SELLER'">
+            <div class="cart-trigger" routerLink="/cart" *ngIf="currentUser && currentUser.role !== 'SELLER'">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />

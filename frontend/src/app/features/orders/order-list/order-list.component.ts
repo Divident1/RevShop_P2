@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { OrderService, OrderResponse } from '../../../core/services/order.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
     selector: 'app-order-list',
@@ -11,12 +12,20 @@ export class OrderListComponent implements OnInit {
     orders: OrderResponse[] = [];
     loading = true;
     errorMessage = '';
-    buyerId = 3; 
+    buyerId!: number;
 
-    constructor(private orderService: OrderService) { }
+    constructor(
+        private orderService: OrderService,
+        private authService: AuthService
+    ) { }
 
     ngOnInit(): void {
-        this.loadOrders();
+        this.authService.currentUser$.subscribe(user => {
+            if (user) {
+                this.buyerId = user.id;
+                this.loadOrders();
+            }
+        });
     }
 
     loadOrders(): void {

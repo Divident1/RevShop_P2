@@ -14,7 +14,7 @@ export class CartComponent implements OnInit {
     error: string | null = null;
     updatingItemId: number | null = null;
 
-    private userId = 3;
+    private userId!: number;
 
     constructor(private cartService: CartService, private authService: AuthService) { }
 

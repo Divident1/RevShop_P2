@@ -22,7 +22,7 @@ export class AppComponent implements OnInit {
   currentUser: User | null = null;
 
   // Hardcoded for now, same as in CartComponent for the seeder
-  private userId = 3;
+  private userId!: number;
 
   constructor(
     public cartService: CartService,

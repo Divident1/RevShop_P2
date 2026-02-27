@@ -15,7 +15,12 @@
       </div>
 
       <div class="price">₹ {{product.price | number:'1.2-2'}}</div>
-      <button class="btn-primary" (click)="addToCart()">Add to Cart</button>
+      <div class="button-group">
+        <button class="btn-primary" (click)="addToCart()">Add to Cart</button>
+        <button class="btn-secondary" (click)="toggleFavorite()" [class.active]="isFavorite">
+          {{ isFavorite ? '❤️ In Favorites' : '🤍 Add to Favorites' }}
+        </button>
+      </div>
     </div>
   </div>
 

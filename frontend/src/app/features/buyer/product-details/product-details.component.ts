@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ProductService } from '../../../core/services/product.service';
 import { CartService } from '../../../core/services/cart.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { FavoriteService } from '../../../core/services/favorite.service';
 
 @Component({
   selector: 'app-product-details',
@@ -12,20 +13,54 @@ import { AuthService } from '../../../core/services/auth.service';
 export class ProductDetailsComponent implements OnInit {
 
   product: any;
+  isFavorite: boolean = false;
+  userId: number | undefined;
 
   constructor(
     private route: ActivatedRoute,
     private service: ProductService,
     private cartService: CartService,
-    private authService: AuthService
+    private authService: AuthService,
+    private favoriteService: FavoriteService
   ) { }
 
   ngOnInit() {
-
     const id = Number(this.route.snapshot.paramMap.get('id'));
 
     this.service.getProductDetails(id)
-      .subscribe(res => this.product = res);
+      .subscribe(res => {
+        this.product = res;
+        this.authService.currentUser$.subscribe(user => {
+          if (user) {
+            this.userId = user.id;
+            this.checkFavoriteStatus();
+          }
+        });
+      });
+  }
+
+  checkFavoriteStatus() {
+    if (!this.userId || !this.product) return;
+    this.favoriteService.isFavorite(this.userId, this.product.id).subscribe(res => {
+      this.isFavorite = res.isFavorite;
+    });
+  }
+
+  toggleFavorite() {
+    if (!this.userId) {
+      alert('Please log in first!');
+      return;
+    }
+
+    if (this.isFavorite) {
+      this.favoriteService.removeFavorite(this.userId, this.product.id).subscribe(() => {
+        this.isFavorite = false;
+      });
+    } else {
+      this.favoriteService.addFavorite(this.userId, this.product.id).subscribe(() => {
+        this.isFavorite = true;
+      });
+    }
   }
 
   addToCart() {

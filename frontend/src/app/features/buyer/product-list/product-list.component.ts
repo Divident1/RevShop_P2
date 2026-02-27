@@ -15,7 +15,7 @@ export class ProductListComponent implements OnInit {
   products: any[] = [];
   page = 0;
   categoryId = 1;
-  userId = 3;
+  userId!: number;
   favoritesMap: { [key: number]: boolean } = {};
 
   // Dashboard Widget Data
