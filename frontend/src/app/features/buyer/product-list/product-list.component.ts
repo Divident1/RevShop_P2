@@ -12,9 +12,10 @@ import { AuthService } from '../../../core/services/auth.service';
 })
 export class ProductListComponent implements OnInit {
 
+  allProducts: any[] = [];
   products: any[] = [];
   page = 0;
-  categoryId = 1;
+  pageSize = 6;
   userId!: number;
   favoritesMap: { [key: number]: boolean } = {};
 
@@ -54,11 +55,17 @@ export class ProductListComponent implements OnInit {
   }
 
   loadProducts() {
-    this.service.getProductsByCategory(this.categoryId, this.page)
-      .subscribe(res => {
-        this.products = res.content;
-        this.loadFavorites();
-      });
+    this.service.getAllProducts().subscribe(res => {
+      // Filter out inactive products so buyers don't see them
+      this.allProducts = res.filter(p => p.active !== false);
+      this.updatePaginatedProducts();
+      this.loadFavorites();
+    });
+  }
+
+  updatePaginatedProducts() {
+    const start = this.page * this.pageSize;
+    this.products = this.allProducts.slice(start, start + this.pageSize);
   }
 
   loadFavorites() {
@@ -120,12 +127,17 @@ export class ProductListComponent implements OnInit {
     }
   }
 
-  next() { this.page++; this.loadProducts(); }
+  next() {
+    if ((this.page + 1) * this.pageSize < this.allProducts.length) {
+      this.page++;
+      this.updatePaginatedProducts();
+    }
+  }
 
   prev() {
     if (this.page > 0) {
       this.page--;
-      this.loadProducts();
+      this.updatePaginatedProducts();
     }
   }
 }
