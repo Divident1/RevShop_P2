@@ -1,4 +1,8 @@
 MY_ORDER_MODULE_README.md
 
 target/
-backend/.idea
+backend/.ideabackend.log
+frontend.log
+logs/
+*.log
+
