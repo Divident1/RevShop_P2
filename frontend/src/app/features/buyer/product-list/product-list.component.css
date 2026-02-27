@@ -18,8 +18,114 @@
 .dashboard-header p {
     color: var(--text-muted);
     font-size: 1.1rem;
+    max-width: 600px;
+    margin: 0 auto;
 }
 
+/* Dashboard Widgets */
+.dashboard-widgets {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    margin-bottom: 40px;
+}
+
+.widget-card {
+    padding: 24px;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+}
+
+.widget-card h3 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    color: var(--text-main);
+    font-family: 'Outfit', sans-serif;
+    border-bottom: 1px solid var(--border-color, #e5e7eb);
+    padding-bottom: 12px;
+}
+
+.widget-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-grow: 1;
+}
+
+.widget-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 8px;
+    border: 1px solid var(--border-color, #e5e7eb);
+}
+
+.widget-item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.widget-item-info strong {
+    color: var(--text-main);
+    font-size: 0.95rem;
+}
+
+.widget-item-info span {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.widget-link {
+    color: var(--primary);
+    font-weight: 500;
+    text-decoration: none;
+    font-size: 0.9rem;
+    align-self: flex-start;
+    margin-top: auto;
+}
+
+.widget-link:hover {
+    text-decoration: underline;
+}
+
+.widget-item-status {
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+}
+
+.widget-item-status.pending {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.widget-item-status.confirmed {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.widget-item-status.shipped {
+    background: #f3e8ff;
+    color: #9333ea;
+}
+
+.widget-item-status.delivered {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.widget-item-status.cancelled {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+/* Filter Section */
 /* ── Product Grid ────────────────────────────────── */
 
 .product-grid {

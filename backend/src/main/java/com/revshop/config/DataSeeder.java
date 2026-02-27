@@ -61,6 +61,13 @@ public class DataSeeder implements CommandLineRunner {
         seller2.setRole(Role.SELLER);
         seller2 = userRepository.save(seller2);
 
+        User seller3 = new User();
+        seller3.setName("Home & Decor");
+        seller3.setEmail("home@revshop.com");
+        seller3.setPassword(passwordEncoder.encode("password123"));
+        seller3.setRole(Role.SELLER);
+        seller3 = userRepository.save(seller3);
+
         User buyer = new User();
         buyer.setName("Pavan Kalyan");
         buyer.setEmail("pavan@example.com");
@@ -85,6 +92,10 @@ public class DataSeeder implements CommandLineRunner {
         Category clothes = new Category();
         clothes.setName("Clothing");
         clothes = categoryRepository.save(clothes);
+
+        Category homeAndKitchen = new Category();
+        homeAndKitchen.setName("Home & Kitchen");
+        homeAndKitchen = categoryRepository.save(homeAndKitchen);
 
         logger.info("Categories created.");
 
@@ -130,6 +141,48 @@ public class DataSeeder implements CommandLineRunner {
         p3.setActive(true);
         p3.setStockThreshold(20);
         p3 = productRepository.save(p3);
+
+        Product p4 = new Product();
+        p4.setName("Smart Watch Pro");
+        p4.setDescription("Fitness tracker with heart rate monitor and GPS.");
+        p4.setPrice(5000.0);
+        p4.setMrp(7000.0);
+        p4.setDiscountPercentage(28.0);
+        p4.setQuantity(40);
+        p4.setCategory(electronics);
+        p4.setCategoryName("Electronics");
+        p4.setSeller(seller);
+        p4.setActive(true);
+        p4.setStockThreshold(10);
+        p4 = productRepository.save(p4);
+
+        Product p5 = new Product();
+        p5.setName("Ceramic Coffee Mug");
+        p5.setDescription("Premium quality double-walled ceramic mug.");
+        p5.setPrice(450.0);
+        p5.setMrp(600.0);
+        p5.setDiscountPercentage(25.0);
+        p5.setQuantity(200);
+        p5.setCategory(homeAndKitchen);
+        p5.setCategoryName("Home & Kitchen");
+        p5.setSeller(seller3);
+        p5.setActive(true);
+        p5.setStockThreshold(50);
+        p5 = productRepository.save(p5);
+
+        Product p6 = new Product();
+        p6.setName("Classic Aviator Sunglasses");
+        p6.setDescription("Polarized UV400 lens sunglasses.");
+        p6.setPrice(1200.0);
+        p6.setMrp(2000.0);
+        p6.setDiscountPercentage(40.0);
+        p6.setQuantity(60);
+        p6.setCategory(clothes);
+        p6.setCategoryName("Clothing");
+        p6.setSeller(seller2);
+        p6.setActive(true);
+        p6.setStockThreshold(15);
+        p6 = productRepository.save(p6);
 
         logger.info("Products created.");
 

@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FavoriteService, Favorite } from '../../../core/services/favorite.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
     selector: 'app-favorites',
@@ -11,12 +12,20 @@ export class FavoritesComponent implements OnInit {
     favorites: Favorite[] = [];
     loading = true;
     errorMessage = '';
-    buyerId = 3; // Matches Pavan Kalyan from DataSeeder
+    buyerId!: number;
 
-    constructor(private favoriteService: FavoriteService) { }
+    constructor(
+        private favoriteService: FavoriteService,
+        private authService: AuthService
+    ) { }
 
     ngOnInit(): void {
-        this.loadFavorites();
+        this.authService.currentUser$.subscribe(user => {
+            if (user) {
+                this.buyerId = user.id;
+                this.loadFavorites();
+            }
+        });
     }
 
     loadFavorites(): void {

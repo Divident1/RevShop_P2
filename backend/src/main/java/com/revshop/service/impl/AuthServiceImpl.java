@@ -60,7 +60,10 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public String loginWithToken(LoginRequest request) {
         User user = login(request);
-        return JwtUtil.generateToken(user.getEmail(), user.getRole().name());
+        return JwtUtil.generateToken(
+                user.getEmail(),
+                user.getRole().name(),
+                user.getId());
     }
 
     @Override

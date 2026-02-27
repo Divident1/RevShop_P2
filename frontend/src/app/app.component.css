@@ -31,6 +31,7 @@
 
 .logo-accent {
     background: linear-gradient(135deg, var(--primary), var(--secondary));
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -161,6 +162,118 @@
     align-items: center;
     justify-content: center;
     box-shadow: 0 2px 10px rgba(236, 72, 153, 0.4);
+}
+
+/* --- Notifications --- */
+.notification-trigger {
+    position: relative;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: var(--transition);
+    padding: 8px;
+    display: flex;
+    align-items: center;
+}
+
+.notification-trigger:hover {
+    color: var(--text-main);
+    transform: scale(1.1);
+}
+
+.notification-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: #ef4444;
+    /* red for alerts */
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 10px rgba(239, 68, 68, 0.4);
+}
+
+.notification-dropdown {
+    position: absolute;
+    top: 50px;
+    right: -20px;
+    width: 320px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 12px;
+    box-shadow: var(--shadow-lg);
+    z-index: 1000;
+    overflow: hidden;
+    animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.notification-header {
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color, #e5e7eb);
+    background: var(--bg-nav);
+}
+
+.notification-header h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--text-main);
+}
+
+.notification-list {
+    max-height: 350px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    padding: 16px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.notification-item:hover {
+    background: rgba(0, 0, 0, 0.02);
+}
+
+.notification-item.unread {
+    background: rgba(99, 102, 241, 0.05);
+    border-left: 3px solid var(--primary);
+}
+
+.notification-item p {
+    margin: 0 0 8px 0;
+    font-size: 0.9rem;
+    color: var(--text-main);
+    line-height: 1.4;
+}
+
+.notification-item .time {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.no-notifications {
+    padding: 30px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.95rem;
 }
 
 /* --- Main Wrapper --- */

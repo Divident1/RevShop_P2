@@ -30,7 +30,7 @@ export class AuthService {
       try {
         const decoded: any = jwtDecode(token);
         this._currentUser.next({
-          id: 1, // Mocked ID until backend adds it to claims
+          id: decoded.userId || 3, // Use actual ID or fallback to user 3 (pavan) if old token
           username: decoded.sub || 'User',
           role: decoded.role,
           email: decoded.sub

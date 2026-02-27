@@ -1,8 +1,5 @@
 package com.revshop.dto;
 
-import lombok.Builder;
-import lombok.Data;
-
 public class OrderResponseDto {
 
     private String orderId;

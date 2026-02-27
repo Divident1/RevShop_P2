@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ProductService } from '../../../core/services/product.service';
 import { CartService } from '../../../core/services/cart.service';
 import { FavoriteService } from '../../../core/services/favorite.service';
+import { OrderService, OrderResponse } from '../../../core/services/order.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-product-list',
@@ -13,18 +15,42 @@ export class ProductListComponent implements OnInit {
   products: any[] = [];
   page = 0;
   categoryId = 1;
-  // TODO: Use actual user ID from auth service
-  private userId = 3;
+  userId!: number;
   favoritesMap: { [key: number]: boolean } = {};
+
+  // Dashboard Widget Data
+  recentOrders: OrderResponse[] = [];
+  recentFavorites: any[] = [];
 
   constructor(
     private service: ProductService,
     private cartService: CartService,
-    private favoriteService: FavoriteService
+    private favoriteService: FavoriteService,
+    private orderService: OrderService,
+    private authService: AuthService
   ) { }
 
   ngOnInit() {
-    this.loadProducts();
+    this.authService.currentUser$.subscribe(user => {
+      if (user) {
+        this.userId = user.id;
+        this.loadProducts();
+        this.loadDashboardData();
+        this.cartService.getCart(this.userId).subscribe(cart => {
+          if (cart && cart.items) {
+            cart.items.forEach(item => {
+              this.cartQuantities[item.productId] = item.quantity;
+            });
+          }
+        });
+      }
+    });
+  }
+
+  loadDashboardData() {
+    this.orderService.getOrdersByBuyer(this.userId).subscribe(orders => {
+      this.recentOrders = orders.slice(0, 3); // Top 3 recent
+    });
   }
 
   loadProducts() {
@@ -41,6 +67,7 @@ export class ProductListComponent implements OnInit {
       favorites.forEach(f => {
         this.favoritesMap[f.product.id] = true;
       });
+      this.recentFavorites = favorites.slice(0, 3); // 3 recent favorites
     });
   }
 
@@ -62,14 +89,22 @@ export class ProductListComponent implements OnInit {
 
   decrementFromCart(product: any) {
     const current = this.cartQuantities[product.id] || 0;
-    if (current <= 1) {
-      // Remove from cart entirely
-      delete this.cartQuantities[product.id];
-    } else {
-      this.cartQuantities[product.id] = current - 1;
-    }
-    // Refresh cart badge
-    this.cartService.getCart(this.userId).subscribe();
+    this.cartService.cart$.subscribe(cart => {
+      const item = cart?.items.find(i => i.productId === product.id);
+      if (item) {
+        if (current <= 1) {
+          this.cartService.removeFromCart(this.userId, item.cartItemId).subscribe(() => {
+            delete this.cartQuantities[product.id];
+            this.cartService.getCart(this.userId).subscribe();
+          });
+        } else {
+          this.cartService.updateCartItemQuantity(this.userId, item.cartItemId, current - 1).subscribe(() => {
+            this.cartQuantities[product.id] = current - 1;
+            this.cartService.getCart(this.userId).subscribe();
+          });
+        }
+      }
+    }).unsubscribe();
   }
 
   toggleFavorite(product: any) {

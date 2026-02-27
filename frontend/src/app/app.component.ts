@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CartService } from './core/services/cart.service';
+import { AuthService, User } from './core/services/auth.service';
+import { NotificationService, Notification } from './core/services/notification.service';
 
 @Component({
   selector: 'app-root',
@@ -13,17 +15,61 @@ export class AppComponent implements OnInit {
   searchOpen = false;
   searchQuery = '';
 
+  notifications: Notification[] = [];
+  unreadCount = 0;
+  showNotifications = false;
+
+  currentUser: User | null = null;
+
   // Hardcoded for now, same as in CartComponent for the seeder
-  private userId = 3;
+  private userId!: number;
 
   constructor(
     public cartService: CartService,
-    private router: Router
+    private router: Router,
+    public authService: AuthService,
+    private notificationService: NotificationService
   ) { }
 
   ngOnInit(): void {
-    // Load initial cart data so the navbar badge is accurate on page load
-    this.cartService.getCart(this.userId).subscribe();
+
+    this.authService.currentUser$.subscribe(user => {
+      this.currentUser = user;
+      if (user) {
+        // Fetch specific cart using user.id once Backend syncs cart properly to user ID.
+        this.cartService.getCart(user.id).subscribe();
+        this.loadNotifications(user.email!);
+      } else {
+        this.notifications = [];
+        this.unreadCount = 0;
+      }
+    });
+
+  }
+
+  loadNotifications(email: string) {
+    this.notificationService.getUserNotifications(email).subscribe(data => {
+      this.notifications = data;
+      this.unreadCount = data.filter(n => !n.read).length;
+    });
+  }
+
+  toggleNotifications() {
+    this.showNotifications = !this.showNotifications;
+  }
+
+  markAsRead(n: Notification) {
+    if (!n.read) {
+      this.notificationService.markAsRead(n.id).subscribe(() => {
+        n.read = true;
+        this.unreadCount = Math.max(0, this.unreadCount - 1);
+      });
+    }
+  }
+
+  logout() {
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 
   toggleSearch(): void {

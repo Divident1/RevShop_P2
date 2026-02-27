@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { OrderService } from '../../../core/order.service';
+import { OrderService, OrderRequest } from '../../../core/services/order.service';
+import { CartService } from '../../../core/services/cart.service';
 
 @Component({
   selector: 'app-payment-page',
@@ -16,46 +17,53 @@ export class PaymentPageComponent {
   message = '';
   isError = false;
 
+  orderPayload: OrderRequest | null = null;
+
   constructor(
     private route: ActivatedRoute,
     private orderService: OrderService,
+    private cartService: CartService,
     private router: Router
   ) {
-    this.orderId = this.route.snapshot.queryParamMap.get('orderId') || '';
+    const nav = this.router.getCurrentNavigation();
+    if (nav?.extras.state?.['orderPayload']) {
+      this.orderPayload = nav.extras.state['orderPayload'];
+    }
+  }
+
+  ngOnInit() {
+    if (!this.orderPayload && !this.orderId) {
+      this.router.navigate(['/checkout']);
+    }
   }
 
   pay(): void {
     this.message = '';
     this.isError = false;
 
-    if (!this.orderId) {
+    if (!this.orderPayload) {
       this.isError = true;
-      this.message = 'Missing order id. Please place order again.';
+      this.message = 'Missing order payload. Please place order again.';
       return;
     }
 
     this.isProcessing = true;
+    this.orderPayload.paymentMethod = this.paymentMethod;
 
-    this.orderService.makePayment({
-      orderId: this.orderId,
-      paymentMethod: this.paymentMethod
-    }).subscribe({
+    this.orderService.placeOrder(this.orderPayload).subscribe({
       next: (response) => {
         this.isProcessing = false;
+        this.message = 'Payment successful.';
 
-        if (response.paymentStatus === 'SUCCESS') {
-          this.message = response.message || 'Payment successful.';
-          this.router.navigate(['/order-confirmation'], {
-            queryParams: {
-              orderId: this.orderId,
-              paymentMethod: this.paymentMethod
-            }
-          });
-          return;
-        }
+        // Optionally clear user's cart after checkout.
+        this.cartService.clearCart(this.orderPayload?.buyerId || 3).subscribe();
 
-        this.isError = true;
-        this.message = response.message || 'Payment failed. Please try again.';
+        this.router.navigate(['/order-confirmation'], {
+          queryParams: {
+            orderId: response.orderId,
+            paymentMethod: this.paymentMethod
+          }
+        });
       },
       error: () => {
         this.isProcessing = false;

@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Router } from '@angular/router';
-import { CheckoutRequest, OrderService } from '../../../core/order.service';
-import { CartService } from '../../../core/services/cart.service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { OrderRequest } from '../../../core/services/order.service';
+import { CartService, CartItemResponse } from '../../../core/services/cart.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 interface CheckoutFormState {
   name: string;
@@ -26,24 +26,31 @@ export class CheckoutPageComponent implements OnInit {
   };
   productId = '';
   itemCount = 1;
+  cartItems: CartItemResponse[] = [];
   isSubmitting = false;
   errorMessage = '';
-  private readonly cartUserId = 3;
+  private cartUserId = 3;
   private buyerUserId = '3';
 
   constructor(
     private route: ActivatedRoute,
-    private orderService: OrderService,
     private cartService: CartService,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) { }
 
   ngOnInit(): void {
-    this.prefillBuyerDetails();
-    this.setAmountFromCartService();
+    this.authService.currentUser$.subscribe(user => {
+      if (user) {
+        this.buyerUserId = user.id.toString();
+        this.cartUserId = user.id;
+      }
+      this.prefillBuyerDetails();
+      this.setAmountFromCartService();
 
-    this.route.queryParamMap.subscribe(() => {
-      this.setDefaultAmount();
+      this.route.queryParamMap.subscribe(() => {
+        this.setDefaultAmount();
+      });
     });
   }
 
@@ -152,6 +159,9 @@ export class CheckoutPageComponent implements OnInit {
         }
         if (Number.isFinite(count) && count > 0) {
           this.itemCount = count;
+        }
+        if (cart && cart.items) {
+          this.cartItems = cart.items;
         }
       },
       error: () => {
@@ -355,26 +365,28 @@ export class CheckoutPageComponent implements OnInit {
     this.order.name = this.order.name.trim();
     this.order.phoneNumber = this.order.phoneNumber.trim();
 
-    const payload: CheckoutRequest = {
-      userId: this.buyerUserId,
-      name: this.order.name.trim(),
-      phoneNumber: this.order.phoneNumber.trim(),
+    let items = this.cartItems.map(item => ({
+      productId: item.productId,
+      quantity: item.quantity
+    }));
+
+    if (items.length === 0 && this.productId) {
+      items = [{ productId: Number(this.productId), quantity: this.itemCount }];
+    }
+
+    if (items.length === 0) {
+      this.errorMessage = 'No items found in cart to purchase.';
+      return;
+    }
+
+    const payload: OrderRequest = {
+      buyerId: Number(this.buyerUserId),
       shippingAddress: this.order.shippingAddress.trim(),
-      billingAddress: this.order.shippingAddress.trim(),
-      totalAmount: this.order.totalAmount
+      paymentMethod: '', // To be filled in payment page
+      items: items
     };
 
-    this.orderService.createOrder(payload).subscribe({
-      next: (response) => {
-        this.isSubmitting = false;
-        this.router.navigate(['/payment'], {
-          queryParams: { orderId: response.orderId }
-        });
-      },
-      error: () => {
-        this.isSubmitting = false;
-        this.errorMessage = 'Unable to create order. Please try again.';
-      }
-    });
+    // Go to payment page with payload
+    this.router.navigate(['/payment'], { state: { orderPayload: payload } });
   }
 }
