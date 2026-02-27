@@ -1,6 +1,9 @@
 package com.revshop.service.impl;
 
 import com.revshop.dto.*;
+import com.revshop.exception.InsufficientStockException;
+import com.revshop.exception.OrderNotFoundException;
+import com.revshop.exception.ResourceNotFoundException;
 import com.revshop.model.*;
 import com.revshop.repository.OrderRepository;
 import com.revshop.repository.ProductRepository;
@@ -28,11 +31,14 @@ public class OrderServiceImpl implements OrderService {
         this.productRepository = productRepository;
     }
 
+    // ══════════════════════════════════════════════════════════════════
+    // Place Order
+    // ══════════════════════════════════════════════════════════════════
+
     @Override
     @Transactional
     public OrderResponse placeOrder(OrderRequest request) {
-        User buyer = userRepository.findById(request.getBuyerId())
-                .orElseThrow(() -> new RuntimeException("Buyer not found"));
+        User buyer = findUserById(request.getBuyerId());
 
         Order order = new Order();
         order.setBuyer(buyer);
@@ -43,23 +49,19 @@ public class OrderServiceImpl implements OrderService {
 
         double totalAmount = 0;
 
-        for (OrderRequest.OrderItemRequest itemReq : request.getItems()) {
-            Product product = productRepository.findById(itemReq.getProductId())
-                    .orElseThrow(() -> new RuntimeException("Product not found: " + itemReq.getProductId()));
-
-            if (product.getQuantity() < itemReq.getQuantity()) {
-                throw new RuntimeException("Insufficient stock for product: " + product.getName());
-            }
+        for (OrderRequest.OrderItemRequest itemRequest : request.getItems()) {
+            Product product = findProductById(itemRequest.getProductId());
+            validateStock(product, itemRequest.getQuantity());
 
             OrderItem orderItem = new OrderItem();
             orderItem.setProduct(product);
-            orderItem.setQuantity(itemReq.getQuantity());
+            orderItem.setQuantity(itemRequest.getQuantity());
             orderItem.setPriceAtPurchase(product.getPrice());
 
             order.addOrderItem(orderItem);
             totalAmount += orderItem.getSubtotal();
 
-            product.setQuantity(product.getQuantity() - itemReq.getQuantity());
+            product.setQuantity(product.getQuantity() - itemRequest.getQuantity());
             productRepository.save(product);
         }
 
@@ -67,6 +69,10 @@ public class OrderServiceImpl implements OrderService {
         Order savedOrder = orderRepository.save(order);
         return mapToResponse(savedOrder);
     }
+
+    // ══════════════════════════════════════════════════════════════════
+    // Get Orders
+    // ══════════════════════════════════════════════════════════════════
 
     @Override
     public List<OrderResponse> getOrdersByBuyer(Long buyerId) {
@@ -86,17 +92,18 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderResponse getOrderById(Long orderId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+        Order order = findOrderById(orderId);
         return mapToResponse(order);
     }
+
+    // ══════════════════════════════════════════════════════════════════
+    // Update & Cancel
+    // ══════════════════════════════════════════════════════════════════
 
     @Override
     @Transactional
     public OrderResponse updateOrderStatus(Long orderId, OrderStatus status) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
-
+        Order order = findOrderById(orderId);
         order.setStatus(status);
         order.setUpdatedAt(LocalDateTime.now());
 
@@ -107,13 +114,13 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public void cancelOrder(Long orderId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+        Order order = findOrderById(orderId);
 
         if (order.getStatus() == OrderStatus.SHIPPED || order.getStatus() == OrderStatus.DELIVERED) {
-            throw new RuntimeException("Cannot cancel order that is already shipped or delivered");
+            throw new IllegalStateException("Cannot cancel order that is already " + order.getStatus());
         }
 
+        // Restore stock for each cancelled item
         for (OrderItem item : order.getOrderItems()) {
             Product product = item.getProduct();
             product.setQuantity(product.getQuantity() + item.getQuantity());
@@ -125,10 +132,13 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(order);
     }
 
+    // ══════════════════════════════════════════════════════════════════
+    // Checkout & Payment
+    // ══════════════════════════════════════════════════════════════════
+
     @Override
     public OrderResponseDto checkout(CheckoutRequestDto request) {
-        User buyer = userRepository.findById(Long.parseLong(request.getUserId()))
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User buyer = findUserById(Long.parseLong(request.getUserId()));
 
         Order order = new Order();
         order.setBuyer(buyer);
@@ -152,14 +162,10 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderResponseDto processPayment(PaymentRequestDto request) {
-        Order order = orderRepository.findById(Long.parseLong(request.getOrderId()))
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+        Order order = findOrderById(Long.parseLong(request.getOrderId()));
 
-        String paymentMethod = request.getPaymentMethod() == null ? ""
-                : request.getPaymentMethod().trim().toUpperCase();
-        boolean paymentSuccess = "COD".equals(paymentMethod)
-                || "CREDIT_CARD".equals(paymentMethod)
-                || "DEBIT_CARD".equals(paymentMethod);
+        String paymentMethod = normalizePaymentMethod(request.getPaymentMethod());
+        boolean paymentSuccess = isValidPaymentMethod(paymentMethod);
 
         if (paymentSuccess) {
             order.setPaymentMethod(paymentMethod);
@@ -182,6 +188,44 @@ public class OrderServiceImpl implements OrderService {
                     .paymentStatus("FAILED")
                     .build();
         }
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    // DRY Helpers — reusable lookup & validation methods
+    // ══════════════════════════════════════════════════════════════════
+
+    private User findUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+    }
+
+    private Product findProductById(Long productId) {
+        return productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
+    }
+
+    private Order findOrderById(Long orderId) {
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderNotFoundException("Order not found with id: " + orderId));
+    }
+
+    private void validateStock(Product product, int requestedQuantity) {
+        if (product.getQuantity() < requestedQuantity) {
+            throw new InsufficientStockException(
+                    "Insufficient stock for '" + product.getName() +
+                            "': requested=" + requestedQuantity +
+                            ", available=" + product.getQuantity());
+        }
+    }
+
+    private String normalizePaymentMethod(String paymentMethod) {
+        return paymentMethod == null ? "" : paymentMethod.trim().toUpperCase();
+    }
+
+    private boolean isValidPaymentMethod(String paymentMethod) {
+        return "COD".equals(paymentMethod)
+                || "CREDIT_CARD".equals(paymentMethod)
+                || "DEBIT_CARD".equals(paymentMethod);
     }
 
     private OrderResponse mapToResponse(Order order) {

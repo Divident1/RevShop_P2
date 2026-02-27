@@ -1,9 +1,12 @@
 package com.revshop.service.impl;
 
 import com.revshop.dto.*;
+import com.revshop.exception.ResourceNotFoundException;
 import com.revshop.model.*;
 import com.revshop.repository.*;
 import com.revshop.service.SellerProductService;
+import com.revshop.util.ProductMapper;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,53 +18,41 @@ public class SellerProductServiceImpl implements SellerProductService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
 
-    public SellerProductServiceImpl(ProductRepository productRepository,
-            UserRepository userRepository) {
+    public SellerProductServiceImpl(ProductRepository productRepository, UserRepository userRepository) {
         this.productRepository = productRepository;
         this.userRepository = userRepository;
     }
 
-    private ProductDto map(Product p) {
-        return new ProductDto(
-                p.getId(),
-                p.getName(),
-                p.getDescription(),
-                p.getPrice(),
-                p.getQuantity(),
-                p.getRating());
-    }
-
     @Override
-    public String addProduct(SellerProductRequest req) {
+    public String addProduct(SellerProductRequest request) {
 
-        User seller = userRepository.findById(req.getSellerId())
-                .orElseThrow(() -> new RuntimeException("Seller not found"));
+        User seller = userRepository.findById(request.getSellerId())
+                .orElseThrow(() -> new ResourceNotFoundException("Seller not found with id: " + request.getSellerId()));
 
-        Product p = new Product();
-        p.setName(req.getName());
-        p.setDescription(req.getDescription());
-        p.setPrice(req.getPrice());
-        p.setQuantity(req.getQuantity());
-        p.setActive(true);
-        p.setSeller(seller);
+        Product product = new Product();
+        product.setName(request.getName());
+        product.setDescription(request.getDescription());
+        product.setPrice(request.getPrice());
+        product.setQuantity(request.getQuantity());
+        product.setActive(true);
+        product.setSeller(seller);
 
-        productRepository.save(p);
+        productRepository.save(product);
 
         return "Product added successfully";
     }
 
     @Override
-    public String updateProduct(Long id, SellerProductRequest req) {
+    public String updateProduct(Long id, SellerProductRequest request) {
 
-        Product p = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+        Product product = findProductById(id);
 
-        p.setName(req.getName());
-        p.setDescription(req.getDescription());
-        p.setPrice(req.getPrice());
-        p.setQuantity(req.getQuantity());
+        product.setName(request.getName());
+        product.setDescription(request.getDescription());
+        product.setPrice(request.getPrice());
+        product.setQuantity(request.getQuantity());
 
-        productRepository.save(p);
+        productRepository.save(product);
 
         return "Product updated";
     }
@@ -69,11 +60,9 @@ public class SellerProductServiceImpl implements SellerProductService {
     @Override
     public String deleteProduct(Long id) {
 
-        Product p = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
-
-        p.setActive(false); // soft delete
-        productRepository.save(p);
+        Product product = findProductById(id);
+        product.setActive(false); // soft delete
+        productRepository.save(product);
 
         return "Product deleted";
     }
@@ -81,10 +70,16 @@ public class SellerProductServiceImpl implements SellerProductService {
     @Override
     public List<ProductDto> getSellerProducts(Long sellerId) {
 
-        List<ProductDto> products = productRepository.findBySeller_Id(sellerId)
+        return productRepository.findBySeller_Id(sellerId)
                 .stream()
-                .map(this::map)
+                .map(ProductMapper::mapToDto) // Replaced identical private map method with DRY helper
                 .collect(Collectors.toList());
-        return products;
+    }
+
+    // ── DRY Helpers ───────────────────────────────────────────────────
+
+    private Product findProductById(Long productId) {
+        return productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
     }
 }

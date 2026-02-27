@@ -1,5 +1,7 @@
 package com.revshop.service.impl;
 
+import com.revshop.exception.DuplicateResourceException;
+import com.revshop.exception.ResourceNotFoundException;
 import com.revshop.model.Favorite;
 import com.revshop.model.Product;
 import com.revshop.model.User;
@@ -30,15 +32,11 @@ public class FavoriteServiceImpl implements FavoriteService {
     @Override
     public Favorite addFavorite(Long buyerId, Long productId) {
 
-        User buyer = userRepository.findById(buyerId)
-                .orElseThrow(() -> new RuntimeException("Buyer not found"));
+        User buyer = findUserById(buyerId);
+        Product product = findProductById(productId);
 
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
-
-        // Check if already favorited
         if (favoriteRepository.existsByBuyerIdAndProductId(buyerId, productId)) {
-            throw new RuntimeException("Product is already in your favorites");
+            throw new DuplicateResourceException("Product is already in your favorites");
         }
 
         Favorite favorite = new Favorite();
@@ -53,7 +51,7 @@ public class FavoriteServiceImpl implements FavoriteService {
     public void removeFavorite(Long buyerId, Long productId) {
 
         Favorite favorite = favoriteRepository.findByBuyerIdAndProductId(buyerId, productId)
-                .orElseThrow(() -> new RuntimeException("Favorite not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Favorite not found"));
 
         favoriteRepository.delete(favorite);
     }
@@ -66,5 +64,17 @@ public class FavoriteServiceImpl implements FavoriteService {
     @Override
     public boolean isFavorite(Long buyerId, Long productId) {
         return favoriteRepository.existsByBuyerIdAndProductId(buyerId, productId);
+    }
+
+    // ── DRY Helpers ───────────────────────────────────────────────────
+
+    private User findUserById(Long buyerId) {
+        return userRepository.findById(buyerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Buyer not found with id: " + buyerId));
+    }
+
+    private Product findProductById(Long productId) {
+        return productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
     }
 }
