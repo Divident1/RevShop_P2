@@ -1,6 +1,8 @@
 package com.revshop.service.impl;
 
 import com.revshop.dto.ReviewRequest;
+import com.revshop.exception.DuplicateResourceException;
+import com.revshop.exception.ResourceNotFoundException;
 import com.revshop.model.Order;
 import com.revshop.model.Product;
 import com.revshop.model.Review;
@@ -36,33 +38,12 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public Review addReview(ReviewRequest request) {
 
-        // Validate buyer exists
-        User buyer = userRepository.findById(request.getBuyerId())
-                .orElseThrow(() -> new RuntimeException("Buyer not found"));
+        User buyer = findUserById(request.getBuyerId());
+        Product product = findProductById(request.getProductId());
 
-        // Validate product exists
-        Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new RuntimeException("Product not found"));
-
-        // Check if buyer has purchased this product
-        List<Order> buyerOrders = orderRepository.findByBuyerIdOrderByOrderDateDesc(request.getBuyerId());
-        boolean hasPurchased = buyerOrders.stream()
-                .flatMap(order -> order.getOrderItems().stream())
-                .anyMatch(item -> item.getProduct().getId().equals(request.getProductId()));
-
-        if (!hasPurchased) {
-            throw new RuntimeException("You can only review products you have purchased");
-        }
-
-        // Check if already reviewed
-        if (reviewRepository.existsByBuyerIdAndProductId(request.getBuyerId(), request.getProductId())) {
-            throw new RuntimeException("You have already reviewed this product");
-        }
-
-        // Validate rating
-        if (request.getRating() < 1 || request.getRating() > 5) {
-            throw new RuntimeException("Rating must be between 1 and 5");
-        }
+        validatePurchaseHistory(request.getBuyerId(), request.getProductId());
+        validateNoDuplicateReview(request.getBuyerId(), request.getProductId());
+        validateRating(request.getRating());
 
         Review review = new Review();
         review.setBuyer(buyer);
@@ -86,15 +67,60 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public Double getAverageRating(Long productId) {
-        Double avg = reviewRepository.findAverageRatingByProductId(productId);
-        return avg != null ? avg : 0.0;
+        Double averageRating = reviewRepository.findAverageRatingByProductId(productId);
+        return averageRating != null ? averageRating : 0.0;
     }
 
     @Override
     public void deleteReview(Long reviewId) {
         if (!reviewRepository.existsById(reviewId)) {
-            throw new RuntimeException("Review not found");
+            throw new ResourceNotFoundException("Review not found with id: " + reviewId);
         }
         reviewRepository.deleteById(reviewId);
+    }
+
+    // ── DRY Helpers ───────────────────────────────────────────────────
+
+    private User findUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Buyer not found with id: " + userId));
+    }
+
+    private Product findProductById(Long productId) {
+        return productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
+    }
+
+    private void validatePurchaseHistory(Long buyerId, Long productId) {
+        List<Order> buyerOrders = orderRepository.findByBuyerIdOrderByOrderDateDesc(buyerId);
+        boolean hasPurchased = buyerOrders.stream()
+                .flatMap(order -> order.getOrderItems().stream())
+                .anyMatch(item -> item.getProduct().getId().equals(productId));
+
+        if (!hasPurchased) {
+            throw new ForbiddenReviewException("You can only review products you have purchased");
+        }
+    }
+
+    private void validateNoDuplicateReview(Long buyerId, Long productId) {
+        if (reviewRepository.existsByBuyerIdAndProductId(buyerId, productId)) {
+            throw new DuplicateResourceException("You have already reviewed this product");
+        }
+    }
+
+    private void validateRating(int rating) {
+        if (rating < 1 || rating > 5) {
+            throw new IllegalArgumentException("Rating must be between 1 and 5, got: " + rating);
+        }
+    }
+
+    /**
+     * Private inner exception for review-specific business rule violations.
+     * Caught by the RuntimeException handler in GlobalExceptionHandler.
+     */
+    static class ForbiddenReviewException extends RuntimeException {
+        ForbiddenReviewException(String message) {
+            super(message);
+        }
     }
 }
