@@ -71,7 +71,7 @@ public class OrderServiceImpl implements OrderService {
             // Notify Seller
             notificationService.createNotification(
                     product.getSeller().getId(),
-                    "🎉 New Order Received! Someone just bought " + itemReq.getQuantity() + "x of your '"
+                    "🎉 New Order Received! Someone just bought " + itemRequest.getQuantity() + "x of your '"
                             + product.getName() + "'.");
 
             // Low Stock Alert
