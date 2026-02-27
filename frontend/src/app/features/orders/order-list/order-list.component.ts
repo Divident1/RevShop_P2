@@ -11,7 +11,7 @@ export class OrderListComponent implements OnInit {
     orders: OrderResponse[] = [];
     loading = true;
     errorMessage = '';
-    buyerId = 1; // TODO: Get from auth service
+    buyerId = 3; 
 
     constructor(private orderService: OrderService) { }
 

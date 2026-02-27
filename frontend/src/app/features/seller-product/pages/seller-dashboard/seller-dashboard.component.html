@@ -1,9 +1,20 @@
-<h2>Seller Dashboard</h2>
-<button (click)="clear()">Add Product</button>
+<section class="seller-dashboard">
+  <div class="dashboard-header">
+    <div>
+      <h2>Seller Dashboard</h2>
+      <p>Manage your catalog, pricing, and stock in one place.</p>
+    </div>
+    <button class="add-product-btn" (click)="clear()">Add Product</button>
+  </div>
 
-<app-product-form
-  [product]="selectedProduct"
-  (onSaved)="onSaved()">
-</app-product-form>
+  <app-product-form
+    [product]="selectedProduct"
+    (onSaved)="onSaved()">
+  </app-product-form>
 
-<app-product-list (editProduct)="edit($event)"></app-product-list>
+  <app-product-list
+    [products]="products"
+    (editProduct)="edit($event)"
+    (productDeleted)="loadProducts()">
+  </app-product-list>
+</section>

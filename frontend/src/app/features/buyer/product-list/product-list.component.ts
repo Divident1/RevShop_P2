@@ -44,14 +44,32 @@ export class ProductListComponent implements OnInit {
     });
   }
 
+  // Track cart quantities per product
+  cartQuantities: { [productId: number]: number } = {};
+
   addToCart(product: any) {
     this.cartService.addToCart(this.userId, product.id, 1).subscribe({
       next: () => {
-        // Optional: show a small toast or notification
-        console.log('Added to cart');
+        this.cartQuantities[product.id] = (this.cartQuantities[product.id] || 0) + 1;
+        this.cartService.getCart(this.userId).subscribe();
       },
-      error: (err) => console.error('Error adding to cart', err)
+      error: (err) => {
+        const msg = err?.error?.message || err?.error || 'Could not add to cart';
+        alert('⚠️ ' + msg);
+      }
     });
+  }
+
+  decrementFromCart(product: any) {
+    const current = this.cartQuantities[product.id] || 0;
+    if (current <= 1) {
+      // Remove from cart entirely
+      delete this.cartQuantities[product.id];
+    } else {
+      this.cartQuantities[product.id] = current - 1;
+    }
+    // Refresh cart badge
+    this.cartService.getCart(this.userId).subscribe();
   }
 
   toggleFavorite(product: any) {

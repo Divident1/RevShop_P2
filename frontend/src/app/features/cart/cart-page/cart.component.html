@@ -116,7 +116,13 @@
         <span class="total-value">₹{{ cart!.totalPrice | number:'1.2-2' }}</span>
       </div>
 
-      <a routerLink="/checkout" class="btn-checkout">Proceed to Checkout</a>
+      <a
+        routerLink="/checkout"
+        [queryParams]="{ amount: cart!.totalPrice, quantity: cart!.totalItems }"
+        class="btn-checkout"
+      >
+        Proceed to Checkout
+      </a>
 
       <button class="btn-clear-cart" (click)="clearCart()">Clear Cart</button>
 

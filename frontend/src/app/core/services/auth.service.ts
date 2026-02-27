@@ -1,33 +1,86 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
+import { jwtDecode } from 'jwt-decode';
 
-@Injectable({
-  providedIn: 'root'
-})
+export interface User {
+  id: number;
+  username: string;
+  role?: string;
+  email?: string;
+}
+
+@Injectable({ providedIn: 'root' })
 export class AuthService {
 
-  API = "http://localhost:8080/api/auth";
+  private baseUrl = "http://localhost:8080/api/auth";
 
-  constructor(private http: HttpClient) {}
+  private _currentUser = new BehaviorSubject<User | null>(null);
+  currentUser$ = this._currentUser.asObservable();
+  get currentUser(): User | null { return this._currentUser.value; }
 
-  login(data:any){
+  constructor(private http: HttpClient) {
+    this.checkToken();
+  }
 
-  return this.http.post(
-    this.API + "/login",
-    data,
-    { responseType: 'text' }   // VERY IMPORTANT
-  );
+  private checkToken() {
+    const token = this.getToken();
+    if (token) {
+      try {
+        const decoded: any = jwtDecode(token);
+        this._currentUser.next({
+          id: 1, // Mocked ID until backend adds it to claims
+          username: decoded.sub || 'User',
+          role: decoded.role,
+          email: decoded.sub
+        });
+      } catch (e) {
+        this.logout();
+      }
+    }
+  }
 
-}
+  login(data: any): Observable<string> {
+    return this.http.post(
+      this.baseUrl + "/login",
+      data,
+      { responseType: 'text' }
+    ).pipe(
+      tap((token: string) => {
+        this.saveToken(token);
+        this.checkToken();
+      })
+    );
+  }
 
- register(data:any){
+  register(data: any) {
+    return this.http.post(
+      this.baseUrl + "/register",
+      data,
+      { responseType: 'text' }
+    );
+  }
 
-  return this.http.post(
-    this.API + "/register",
-    data,
-    { responseType: 'text' }
-  );
+  resetPassword(data: any) {
+    return this.http.post(
+      this.baseUrl + "/reset-password",
+      data,
+      { responseType: 'text' }
+    );
+  }
 
-}
+  saveToken(token: string) {
+    localStorage.setItem("token", token);
+  }
+
+  getToken() {
+    return localStorage.getItem("token");
+  }
+
+  logout() {
+    localStorage.removeItem("token");
+    this._currentUser.next(null);
+  }
 
 }

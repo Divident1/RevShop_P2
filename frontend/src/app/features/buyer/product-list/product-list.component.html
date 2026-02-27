@@ -31,7 +31,8 @@
             <span class="old-price" *ngIf="p.mrp > p.price">₹{{p.mrp}}</span>
           </div>
 
-          <button class="btn-premium btn-primary btn-add-cart" (click)="addToCart(p)">
+          <!-- Add / Quantity Counter -->
+          <button *ngIf="!cartQuantities[p.id]" class="btn-premium btn-primary btn-add-cart" (click)="addToCart(p)">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M5 12h14" />
@@ -39,6 +40,11 @@
             </svg>
             Add
           </button>
+          <div class="qty-counter" *ngIf="cartQuantities[p.id]">
+            <button class="qty-btn qty-minus" (click)="decrementFromCart(p)">−</button>
+            <span class="qty-value">{{ cartQuantities[p.id] }}</span>
+            <button class="qty-btn qty-plus" (click)="addToCart(p)">+</button>
+          </div>
         </div>
       </div>
     </div>

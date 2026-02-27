@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
 import { Router } from '@angular/router';
+import { jwtDecode } from 'jwt-decode';
 
 @Component({
   selector: 'app-auth-page',
@@ -55,12 +56,11 @@ export class AuthPageComponent implements OnInit {
 
     this.authService.login(this.loginForm.value)
       .subscribe({
-        next: (res: any) => {
-          this.message = 'Login successful';
-          this.error = '';
+        next: (token: string) => {
+          this.message = "Login successful";
 
-          // Role-based redirect
-          const role = res?.role || 'BUYER';
+          const decoded: any = jwtDecode(token);
+          const role = decoded.role || 'BUYER';
 
           if (role === 'SELLER') {
             this.router.navigateByUrl('/seller/dashboard');
@@ -69,7 +69,7 @@ export class AuthPageComponent implements OnInit {
           }
         },
         error: (err: any) => {
-          this.error = err.error;
+          this.error = typeof err.error === 'string' ? err.error : "Login failed";
           this.message = '';
         }
       });
@@ -85,12 +85,12 @@ export class AuthPageComponent implements OnInit {
     this.authService.register(this.registerForm.value)
       .subscribe({
         next: (res: any) => {
-          this.message = 'Registered successfully';
+          this.message = res || 'Registered successfully';
           this.error = '';
           this.isLogin = true;
         },
         error: (err: any) => {
-          this.error = err.error;
+          this.error = typeof err.error === 'string' ? err.error : "Registration failed";
           this.message = '';
         }
       });

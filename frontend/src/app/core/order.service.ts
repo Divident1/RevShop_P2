@@ -1,29 +1,40 @@
 import { Injectable } from '@angular/core';
-
 import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+export interface CheckoutRequest {
+  userId: string;
+  name: string;
+  phoneNumber: string;
+  shippingAddress: string;
+  billingAddress: string;
+  totalAmount: number;
+}
+
+export interface PaymentRequest {
+  orderId: string;
+  paymentMethod: string;
+}
+
+export interface OrderResponse {
+  orderId: string;
+  message: string;
+  paymentStatus: 'PENDING' | 'SUCCESS' | 'FAILED' | string;
+}
 
 @Injectable({
-
-  providedIn:'root'
-
+  providedIn: 'root'
 })
+export class OrderService {
+  private readonly api = 'http://localhost:8080/api/orders';
 
-export class OrderService{
+  constructor(private http: HttpClient) { }
 
-  API="http://localhost:8080/api/orders";
-
-  constructor(private http:HttpClient){}
-
-  createOrder(order:any){
-
-    return this.http.post(this.API+"/checkout",order);
-
+  createOrder(order: CheckoutRequest): Observable<OrderResponse> {
+    return this.http.post<OrderResponse>(`${this.api}/checkout`, order);
   }
 
-  makePayment(payment:any){
-
-    return this.http.post(this.API+"/payment",payment);
-
+  makePayment(payment: PaymentRequest): Observable<OrderResponse> {
+    return this.http.post<OrderResponse>(`${this.api}/payment`, payment);
   }
-
 }

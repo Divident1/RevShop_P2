@@ -17,8 +17,9 @@
             </div>
             <div class="fav-info">
                 <h4>{{ fav.product.name }}</h4>
-                <p class="fav-category">{{ fav.product.category }}</p>
-                <p class="fav-price">${{ fav.product.price | number:'1.2-2' }}</p>
+                <p class="fav-category">{{ fav.product.categoryName || fav.product.category?.name || 'Uncategorized' }}
+                </p>
+                <p class="fav-price">₹{{ fav.product.price | number:'1.2-2' }}</p>
                 <p class="fav-desc">{{ fav.product.description }}</p>
                 <p class="fav-added">Added {{ fav.addedAt | date:'mediumDate' }}</p>
             </div>

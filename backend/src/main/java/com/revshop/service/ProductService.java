@@ -13,7 +13,7 @@ public interface ProductService {
 
     Product updateProduct(Long id, ProductUpdateRequest request);
 
-    void deleteProduct(Long id);
+    void deleteProduct(Long id, Long sellerId);
 
     Product setStockThreshold(Long productId, ThresholdRequest request);
 

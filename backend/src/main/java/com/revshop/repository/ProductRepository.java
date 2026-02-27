@@ -12,12 +12,13 @@ import java.util.List;
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
     // Jatin's buyer queries
-    Page<Product> findByCategoryIdAndIsActiveTrue(Long categoryId, Pageable pageable);
+    Page<Product> findByCategory_IdAndActiveTrue(Long categoryId, Pageable pageable);
 
     @Query("SELECT p FROM Product p WHERE " +
             "LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-            "AND p.isActive = true")
+            "AND p.active = true")
     List<Product> searchProducts(@Param("keyword") String keyword);
 
+    // Kavya's seller queries
     List<Product> findBySeller_Id(Long sellerId);
 }

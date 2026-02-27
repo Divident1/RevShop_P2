@@ -24,7 +24,6 @@ public class User {
 
     private String resetToken;
 
-
     public Long getId() {
         return id;
     }

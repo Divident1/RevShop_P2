@@ -33,7 +33,6 @@ public class Product {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    // String-based category for backward compatibility with Kavya's code
     @Column(name = "category_name")
     private String categoryName;
 
@@ -42,12 +41,13 @@ public class Product {
     @JsonIgnoreProperties({ "password", "resetToken" })
     private User seller;
 
-    private Boolean isActive = true;
+    private Boolean active = true;
 
     @Column(nullable = false)
     private Integer stockThreshold = 5;
 
-    // ═══════════ GETTERS & SETTERS ═══════════
+    public Product() {
+    }
 
     public Long getId() {
         return id;
@@ -137,26 +137,20 @@ public class Product {
         this.seller = seller;
     }
 
-    // Convenience method — returns seller's ID for backward compatibility
     public Long getSellerId() {
         return seller != null ? seller.getId() : null;
     }
 
-    public Boolean getIsActive() {
-        return isActive;
+    public Boolean getActive() {
+        return active;
     }
 
-    public void setIsActive(Boolean isActive) {
-        this.isActive = isActive;
+    public void setActive(Boolean active) {
+        this.active = active;
     }
 
-    // Alias for Jatin's code which uses isActive()
     public boolean isActive() {
-        return isActive != null && isActive;
-    }
-
-    public void setActive(boolean active) {
-        this.isActive = active;
+        return active != null && active;
     }
 
     public Integer getStockThreshold() {

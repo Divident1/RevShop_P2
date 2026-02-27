@@ -2,6 +2,7 @@ package com.revshop.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +19,8 @@ public class Order {
     @JoinColumn(name = "buyer_id", nullable = false)
     @JsonIgnoreProperties({ "password", "resetToken", "orders" })
     private User buyer;
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnoreProperties("order")
     private List<OrderItem> orderItems = new ArrayList<>();
 
@@ -26,24 +28,20 @@ public class Order {
     private OrderStatus status = OrderStatus.PENDING;
 
     private double totalAmount;
-
     private String shippingAddress;
+    private String billingAddress;
 
-    private String billingAddress; // From Anusha's module
-
+    private String name;
+    private String phoneNumber;
     private String paymentMethod;
-
-    private String paymentStatus = "PENDING"; // From Anusha's module
-
+    private String paymentStatus = "PENDING";
     private LocalDateTime orderDate = LocalDateTime.now();
-
     private LocalDateTime updatedAt;
+    private LocalDateTime createdAt;
 
-    // Constructors
     public Order() {
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -132,7 +130,30 @@ public class Order {
         this.updatedAt = updatedAt;
     }
 
-    // Helper method
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
     public void addOrderItem(OrderItem item) {
         orderItems.add(item);
         item.setOrder(this);

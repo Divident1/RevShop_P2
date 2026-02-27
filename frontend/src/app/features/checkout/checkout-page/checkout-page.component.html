@@ -1,27 +1,35 @@
-<h2>Checkout</h2>
+<section class="checkout-shell">
+  <div class="checkout-grid">
+    <div class="checkout-card">
+      <h2>Checkout</h2>
+      <p class="muted">Fill order details to continue to payment.</p>
 
-<input placeholder="User ID"
-       [(ngModel)]="order.userId">
+      <label for="name">Name</label>
+      <input id="name" type="text" placeholder="Buyer name" [(ngModel)]="order.name" />
 
-<br>
+      <label for="phoneNumber">Phone Number</label>
+      <input id="phoneNumber" type="tel" placeholder="Enter phone number" [(ngModel)]="order.phoneNumber" pattern="^\\+?[0-9]{10,15}$" />
 
-<input placeholder="Shipping Address"
-       [(ngModel)]="order.shippingAddress">
+      <label for="shippingAddress">Shipping Address</label>
+      <textarea id="shippingAddress" placeholder="Enter shipping address" [(ngModel)]="order.shippingAddress"></textarea>
 
-<br>
+      <label for="totalAmount">Total Amount</label>
+      <input id="totalAmount" type="number" min="1" step="0.01" placeholder="0.00" [(ngModel)]="order.totalAmount" readonly />
 
-<input placeholder="Billing Address"
-       [(ngModel)]="order.billingAddress">
+      <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
 
-<br>
+      <button class="primary-btn" (click)="placeOrder()" [disabled]="isSubmitting">
+        {{ isSubmitting ? 'Placing Order...' : 'Place Order' }}
+      </button>
+    </div>
 
-<input placeholder="Total Amount"
-       [(ngModel)]="order.totalAmount">
-
-<br><br>
-
-<button (click)="placeOrder()">
-
-  Place Order
-
-</button>
+    <aside class="summary-card">
+      <h3>Order Summary</h3>
+      <div class="summary-row"><span>Product ID</span><strong>{{ productId || 'N/A' }}</strong></div>
+      <div class="summary-row"><span>Items</span><strong>{{ itemCount }}</strong></div>
+      <div class="summary-row"><span>Shipping</span><strong>FREE</strong></div>
+      <hr />
+      <div class="summary-row total"><span>Total</span><strong>Rs {{ order.totalAmount || 0 }}</strong></div>
+    </aside>
+  </div>
+</section>
