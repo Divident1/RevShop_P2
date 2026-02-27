@@ -9,17 +9,11 @@
     <!-- Tabs -->
     <div class="tabs">
 
-      <div
-        class="tab"
-        [class.active]="isLogin"
-        (click)="switchTab(true)">
+      <div class="tab" [class.active]="isLogin" (click)="switchTab(true)">
         Login
       </div>
 
-      <div
-        class="tab"
-        [class.active]="!isLogin"
-        (click)="switchTab(false)">
+      <div class="tab" [class.active]="!isLogin" (click)="switchTab(false)">
         Register
       </div>
 
@@ -28,10 +22,7 @@
 
     <!-- ================= LOGIN FORM ================= -->
 
-    <form
-      *ngIf="isLogin"
-      [formGroup]="loginForm"
-      (ngSubmit)="login()">
+    <form *ngIf="isLogin" [formGroup]="loginForm" (ngSubmit)="login()">
 
       <h2>Welcome Back</h2>
 
@@ -46,32 +37,22 @@
       </div>
 
       <!-- Email -->
-      <input
-        type="email"
-        placeholder="Enter your email"
-        formControlName="email"
-      >
+      <input type="email" placeholder="Enter your email" formControlName="email">
 
-      <div class="validation"
-      *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.invalid">
-
-        Email is required
-
+      <div class="validation" *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.invalid">
+        <span *ngIf="loginForm.get('email')?.errors?.['required']">Email is required</span>
+        <span *ngIf="loginForm.get('email')?.errors?.['email'] || loginForm.get('email')?.errors?.['pattern']">Please
+          enter a valid email address (e.g. user@gmail.com)</span>
       </div>
 
 
       <!-- Password -->
-      <input
-        type="password"
-        placeholder="Enter your password"
-        formControlName="password"
-      >
+      <input type="password" placeholder="Enter your password" formControlName="password">
 
-      <div class="validation"
-      *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid">
-
-        Password is required
-
+      <div class="validation" *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid">
+        <span *ngIf="loginForm.get('password')?.errors?.['required']">Password is required</span>
+        <span *ngIf="loginForm.get('password')?.errors?.['minlength']">Password must be at least 6 characters
+          long</span>
       </div>
 
 
@@ -94,10 +75,7 @@
 
     <!-- ================= REGISTER FORM ================= -->
 
-    <form
-      *ngIf="!isLogin"
-      [formGroup]="registerForm"
-      (ngSubmit)="register()">
+    <form *ngIf="!isLogin" [formGroup]="registerForm" (ngSubmit)="register()">
 
       <h2>Create Account</h2>
 
@@ -113,47 +91,32 @@
 
 
       <!-- Name -->
-      <input
-        type="text"
-        placeholder="Enter your name"
-        formControlName="name"
-      >
+      <input type="text" placeholder="Enter your name" formControlName="name">
 
-      <div class="validation"
-      *ngIf="registerForm.get('name')?.touched && registerForm.get('name')?.invalid">
-
-        Name is required
-
+      <div class="validation" *ngIf="registerForm.get('name')?.touched && registerForm.get('name')?.invalid">
+        <span *ngIf="registerForm.get('name')?.errors?.['required']">Name is required</span>
+        <span *ngIf="registerForm.get('name')?.errors?.['minlength']">Name must be at least 3 characters long</span>
       </div>
 
 
       <!-- Email -->
-      <input
-        type="email"
-        placeholder="Enter your email"
-        formControlName="email"
-      >
+      <input type="email" placeholder="Enter your email" formControlName="email">
 
-      <div class="validation"
-      *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.invalid">
-
-        Email is required
-
+      <div class="validation" *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.invalid">
+        <span *ngIf="registerForm.get('email')?.errors?.['required']">Email is required</span>
+        <span
+          *ngIf="registerForm.get('email')?.errors?.['email'] || registerForm.get('email')?.errors?.['pattern']">Please
+          enter a valid email address (e.g. user@gmail.com)</span>
       </div>
 
 
       <!-- Password -->
-      <input
-        type="password"
-        placeholder="Enter your password"
-        formControlName="password"
-      >
+      <input type="password" placeholder="Enter your password" formControlName="password">
 
-      <div class="validation"
-      *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.invalid">
-
-        Password is required
-
+      <div class="validation" *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.invalid">
+        <span *ngIf="registerForm.get('password')?.errors?.['required']">Password is required</span>
+        <span *ngIf="registerForm.get('password')?.errors?.['minlength']">Password must be at least 6 characters
+          long</span>
       </div>
 
 
@@ -172,12 +135,8 @@
 
 
       <!-- Business Name (only for seller) -->
-      <input
-        *ngIf="registerForm.get('role')?.value === 'SELLER'"
-        type="text"
-        placeholder="Enter business name"
-        formControlName="businessName"
-      >
+      <input *ngIf="registerForm.get('role')?.value === 'SELLER'" type="text" placeholder="Enter business name"
+        formControlName="businessName">
 
 
       <!-- Register Button -->

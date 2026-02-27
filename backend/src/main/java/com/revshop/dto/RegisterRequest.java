@@ -1,16 +1,32 @@
 package com.revshop.dto;
 
 import com.revshop.model.Role;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 public class RegisterRequest {
 
+    @NotBlank(message = "Name is required")
+    @Size(min = 3, message = "Name must be at least 3 characters long")
     private String name;
+
+    @NotBlank(message = "Email is required")
+    @Email(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}$", message = "Please provide a valid email address")
     private String email;
+
+    @NotBlank(message = "Password is required")
+    @Size(min = 6, message = "Password must be at least 6 characters long")
     private String password;
+
+    @NotNull(message = "Role is required")
     private Role role;
+
     private String businessName;
 
-    public RegisterRequest() {}
+    public RegisterRequest() {
+    }
 
     public String getName() {
         return name;
