@@ -11,8 +11,14 @@ export interface ReviewRequest {
 
 export interface Review {
     id: number;
-    buyer: any;
-    product: any;
+    buyer: {
+        id: number;
+        name: string;
+    };
+    product: {
+        id: number;
+        name: string;
+    };
     rating: number;
     comment: string;
     createdAt: string;
@@ -33,6 +39,10 @@ export class ReviewService {
 
     getReviewsByProduct(productId: number): Observable<Review[]> {
         return this.http.get<Review[]>(`${this.API}/product/${productId}`);
+    }
+
+    getReviewsBySeller(sellerId: number): Observable<Review[]> {
+        return this.http.get<Review[]>(`${this.API}/seller/${sellerId}`);
     }
 
     getReviewsByBuyer(buyerId: number): Observable<Review[]> {

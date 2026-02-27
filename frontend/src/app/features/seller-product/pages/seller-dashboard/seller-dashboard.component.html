@@ -65,6 +65,9 @@
     <button class="tab-btn" [class.active]="activeTab === 'ORDERS'" (click)="setTab('ORDERS')">
       Manage Orders <span class="badge" *ngIf="totalOrders > 0">{{ totalOrders }}</span>
     </button>
+    <button class="tab-btn" [class.active]="activeTab === 'REVIEWS'" (click)="setTab('REVIEWS')">
+      Customer Reviews <span class="badge" *ngIf="totalReviews > 0">{{ totalReviews }}</span>
+    </button>
   </div>
 
   <!-- PRODUCTS TAB -->
@@ -137,6 +140,33 @@
             <line x1="12" y1="22.08" x2="12" y2="12"></line>
           </svg>
           <p>No orders place yet. Keep marketing your products!</p>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+
+  <!-- REVIEWS TAB -->
+  <div *ngIf="activeTab === 'REVIEWS'" class="tab-content animate-fade">
+    <div class="orders-container glass-panel">
+      <h3>Customer Reviews</h3>
+      <div *ngIf="sellerReviews.length > 0; else noReviews">
+        <div class="review-card" *ngFor="let review of sellerReviews">
+          <div class="review-top">
+            <div class="review-meta">
+              <strong>{{ review.product.name }}</strong>
+              <span>by {{ review.buyer.name || 'Customer' }}</span>
+            </div>
+            <div class="review-stars">
+              <span *ngFor="let s of [1,2,3,4,5]" [class.dim]="s > review.rating">★</span>
+            </div>
+          </div>
+          <p class="review-comment">{{ review.comment || 'No comment provided.' }}</p>
+          <span class="review-date">{{ review.createdAt | date:'medium' }}</span>
+        </div>
+      </div>
+      <ng-template #noReviews>
+        <div class="empty-state">
+          <p>No customer reviews yet. You will see them here after buyers submit ratings.</p>
         </div>
       </ng-template>
     </div>

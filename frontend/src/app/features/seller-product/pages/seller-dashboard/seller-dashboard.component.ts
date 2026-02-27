@@ -4,6 +4,7 @@ import { Product } from '../../models/product.model';
 import { ProductService } from '../../../../core/services/product.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { OrderService } from '../../../../core/services/order.service';
+import { Review, ReviewService } from '../../../../core/services/review.service';
 
 @Component({
   selector: 'app-seller-dashboard',
@@ -21,13 +22,16 @@ export class SellerDashboardComponent implements OnInit {
   lowStockItems: Product[] = [];
 
   // Orders Management
-  activeTab: 'PRODUCTS' | 'ORDERS' = 'PRODUCTS';
+  activeTab: 'PRODUCTS' | 'ORDERS' | 'REVIEWS' = 'PRODUCTS';
   sellerOrders: any[] = [];
+  sellerReviews: Review[] = [];
+  totalReviews = 0;
 
   constructor(
     private productService: ProductService,
     private authService: AuthService,
-    private orderService: OrderService
+    private orderService: OrderService,
+    private reviewService: ReviewService
   ) { }
 
   ngOnInit() {
@@ -43,8 +47,9 @@ export class SellerDashboardComponent implements OnInit {
 
     forkJoin({
       allProducts: this.productService.getAllProducts(),
-      orders: this.orderService.getOrdersBySeller(sellerId)
-    }).subscribe(({ allProducts, orders }) => {
+      orders: this.orderService.getOrdersBySeller(sellerId),
+      reviews: this.reviewService.getReviewsBySeller(sellerId)
+    }).subscribe(({ allProducts, orders, reviews }) => {
       // 1. Process Products
       this.products = allProducts.filter(p => Number(p.sellerId) === Number(sellerId));
       this.lowStockItems = this.products.filter(p => Number(p.quantity) <= Number(p.stockThreshold));
@@ -62,6 +67,10 @@ export class SellerDashboardComponent implements OnInit {
           }
         });
       });
+
+      // 3. Process Reviews
+      this.sellerReviews = reviews;
+      this.totalReviews = reviews.length;
     });
   }
 
@@ -99,7 +108,7 @@ export class SellerDashboardComponent implements OnInit {
   }
 
   // Helper method to set tabs
-  setTab(tab: 'PRODUCTS' | 'ORDERS') {
+  setTab(tab: 'PRODUCTS' | 'ORDERS' | 'REVIEWS') {
     this.activeTab = tab;
   }
 

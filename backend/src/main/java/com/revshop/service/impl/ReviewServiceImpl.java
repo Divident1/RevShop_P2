@@ -2,8 +2,10 @@ package com.revshop.service.impl;
 
 import com.revshop.dto.ReviewRequest;
 import com.revshop.exception.DuplicateResourceException;
+import com.revshop.exception.ForbiddenException;
 import com.revshop.exception.ResourceNotFoundException;
 import com.revshop.model.Order;
+import com.revshop.model.OrderStatus;
 import com.revshop.model.Product;
 import com.revshop.model.Review;
 import com.revshop.model.User;
@@ -11,6 +13,7 @@ import com.revshop.repository.OrderRepository;
 import com.revshop.repository.ProductRepository;
 import com.revshop.repository.ReviewRepository;
 import com.revshop.repository.UserRepository;
+import com.revshop.service.NotificationService;
 import com.revshop.service.ReviewService;
 import org.springframework.stereotype.Service;
 
@@ -24,15 +27,18 @@ public class ReviewServiceImpl implements ReviewService {
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
+    private final NotificationService notificationService;
 
     public ReviewServiceImpl(ReviewRepository reviewRepository,
             UserRepository userRepository,
             ProductRepository productRepository,
-            OrderRepository orderRepository) {
+            OrderRepository orderRepository,
+            NotificationService notificationService) {
         this.reviewRepository = reviewRepository;
         this.userRepository = userRepository;
         this.productRepository = productRepository;
         this.orderRepository = orderRepository;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -52,12 +58,21 @@ public class ReviewServiceImpl implements ReviewService {
         review.setComment(request.getComment());
         review.setCreatedAt(LocalDateTime.now());
 
-        return reviewRepository.save(review);
+        Review savedReview = reviewRepository.save(review);
+        syncProductRating(product.getId());
+        notifySellerAboutReview(savedReview);
+
+        return savedReview;
     }
 
     @Override
     public List<Review> getReviewsByProduct(Long productId) {
         return reviewRepository.findByProductIdOrderByCreatedAtDesc(productId);
+    }
+
+    @Override
+    public List<Review> getReviewsBySeller(Long sellerId) {
+        return reviewRepository.findByProductSeller_IdOrderByCreatedAtDesc(sellerId);
     }
 
     @Override
@@ -73,10 +88,12 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public void deleteReview(Long reviewId) {
-        if (!reviewRepository.existsById(reviewId)) {
-            throw new ResourceNotFoundException("Review not found with id: " + reviewId);
-        }
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new ResourceNotFoundException("Review not found with id: " + reviewId));
+
+        Long productId = review.getProduct().getId();
         reviewRepository.deleteById(reviewId);
+        syncProductRating(productId);
     }
 
     // ── DRY Helpers ───────────────────────────────────────────────────
@@ -94,11 +111,12 @@ public class ReviewServiceImpl implements ReviewService {
     private void validatePurchaseHistory(Long buyerId, Long productId) {
         List<Order> buyerOrders = orderRepository.findByBuyerIdOrderByOrderDateDesc(buyerId);
         boolean hasPurchased = buyerOrders.stream()
+                .filter(order -> order.getStatus() != OrderStatus.CANCELLED)
                 .flatMap(order -> order.getOrderItems().stream())
                 .anyMatch(item -> item.getProduct().getId().equals(productId));
 
         if (!hasPurchased) {
-            throw new ForbiddenReviewException("You can only review products you have purchased");
+            throw new ForbiddenException("You can only review products you have purchased");
         }
     }
 
@@ -114,13 +132,28 @@ public class ReviewServiceImpl implements ReviewService {
         }
     }
 
-    /**
-     * Private inner exception for review-specific business rule violations.
-     * Caught by the RuntimeException handler in GlobalExceptionHandler.
-     */
-    static class ForbiddenReviewException extends RuntimeException {
-        ForbiddenReviewException(String message) {
-            super(message);
+    private void syncProductRating(Long productId) {
+        Product product = findProductById(productId);
+        product.setRating(getAverageRating(productId));
+        productRepository.save(product);
+    }
+
+    private void notifySellerAboutReview(Review review) {
+        User seller = review.getProduct().getSeller();
+        if (seller == null || seller.getId() == null) {
+            return;
         }
+
+        String commentPreview = review.getComment() == null ? "" : review.getComment().trim();
+        if (!commentPreview.isEmpty() && commentPreview.length() > 80) {
+            commentPreview = commentPreview.substring(0, 80) + "...";
+        }
+
+        String message = "⭐ New " + review.getRating() + "-star review on '" + review.getProduct().getName() + "'.";
+        if (!commentPreview.isEmpty()) {
+            message = message + " Comment: \"" + commentPreview + "\"";
+        }
+
+        notificationService.createNotification(seller.getId(), message);
     }
 }

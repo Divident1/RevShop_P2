@@ -8,6 +8,7 @@ import com.revshop.repository.OrderRepository;
 import com.revshop.repository.ProductRepository;
 import com.revshop.repository.ReviewRepository;
 import com.revshop.repository.UserRepository;
+import com.revshop.service.NotificationService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -24,6 +25,8 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,6 +43,9 @@ class ReviewServiceImplTest {
 
     @Mock
     private OrderRepository orderRepository;
+
+    @Mock
+    private NotificationService notificationService;
 
     @InjectMocks
     private ReviewServiceImpl reviewService;
@@ -96,12 +102,14 @@ class ReviewServiceImplTest {
         when(orderRepository.findByBuyerIdOrderByOrderDateDesc(1L)).thenReturn(List.of(order));
         when(reviewRepository.existsByBuyerIdAndProductId(1L, 1L)).thenReturn(false);
         when(reviewRepository.save(any(Review.class))).thenReturn(review);
+        when(reviewRepository.findAverageRatingByProductId(1L)).thenReturn(4.8);
 
         Review result = reviewService.addReview(request);
 
         assertNotNull(result);
         assertEquals(5, result.getRating());
         verify(reviewRepository, times(1)).save(any(Review.class));
+        verify(notificationService, times(1)).createNotification(eq(2L), contains("New 5-star review"));
     }
 
     @Test
@@ -173,6 +181,30 @@ class ReviewServiceImplTest {
     }
 
     @Test
+    @DisplayName("AddReview - should throw when order was cancelled")
+    void addReview_CancelledOrderDoesNotQualify() {
+        ReviewRequest request = new ReviewRequest();
+        request.setBuyerId(1L);
+        request.setProductId(1L);
+        request.setRating(5);
+        request.setComment("Good");
+
+        OrderItem orderItem = new OrderItem();
+        orderItem.setProduct(product);
+        Order cancelledOrder = new Order();
+        cancelledOrder.setId(2L);
+        cancelledOrder.setStatus(OrderStatus.CANCELLED);
+        cancelledOrder.setOrderItems(new ArrayList<>(List.of(orderItem)));
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(buyer));
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        when(orderRepository.findByBuyerIdOrderByOrderDateDesc(1L)).thenReturn(List.of(cancelledOrder));
+
+        Exception ex = assertThrows(Exception.class, () -> reviewService.addReview(request));
+        assertTrue(ex.getMessage().contains("purchased"));
+    }
+
+    @Test
     @DisplayName("GetReviewsByProduct - should return reviews for a product")
     void getReviewsByProduct_Success() {
         when(reviewRepository.findByProductIdOrderByCreatedAtDesc(1L))
@@ -218,18 +250,33 @@ class ReviewServiceImplTest {
     @Test
     @DisplayName("DeleteReview - should delete review successfully")
     void deleteReview_Success() {
-        when(reviewRepository.existsById(1L)).thenReturn(true);
+        when(reviewRepository.findById(1L)).thenReturn(Optional.of(review));
+        when(reviewRepository.findAverageRatingByProductId(1L)).thenReturn(4.5);
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
         doNothing().when(reviewRepository).deleteById(1L);
 
         assertDoesNotThrow(() -> reviewService.deleteReview(1L));
         verify(reviewRepository, times(1)).deleteById(1L);
+        verify(productRepository, times(1)).save(any(Product.class));
     }
 
     @Test
     @DisplayName("DeleteReview - should throw when review not found")
     void deleteReview_NotFound() {
-        when(reviewRepository.existsById(999L)).thenReturn(false);
+        when(reviewRepository.findById(999L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> reviewService.deleteReview(999L));
+    }
+
+    @Test
+    @DisplayName("GetReviewsBySeller - should return seller product reviews")
+    void getReviewsBySeller_Success() {
+        when(reviewRepository.findByProductSeller_IdOrderByCreatedAtDesc(2L))
+                .thenReturn(List.of(review));
+
+        List<Review> results = reviewService.getReviewsBySeller(2L);
+
+        assertEquals(1, results.size());
+        assertEquals(1L, results.get(0).getProduct().getId());
     }
 }

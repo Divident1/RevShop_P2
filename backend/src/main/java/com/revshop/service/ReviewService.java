@@ -11,6 +11,8 @@ public interface ReviewService {
 
     List<Review> getReviewsByProduct(Long productId);
 
+    List<Review> getReviewsBySeller(Long sellerId);
+
     List<Review> getReviewsByBuyer(Long buyerId);
 
     Double getAverageRating(Long productId);

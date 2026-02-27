@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { CartService } from './core/services/cart.service';
 import { AuthService, User } from './core/services/auth.service';
 import { NotificationService, Notification } from './core/services/notification.service';
@@ -24,12 +24,20 @@ export class AppComponent implements OnInit {
   // Hardcoded for now, same as in CartComponent for the seeder
   private userId!: number;
 
+  isAuthRoute = false;
+
   constructor(
     public cartService: CartService,
     private router: Router,
     public authService: AuthService,
     private notificationService: NotificationService
-  ) { }
+  ) {
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        this.isAuthRoute = event.urlAfterRedirects.includes('/login') || event.urlAfterRedirects.includes('/forgot-password');
+      }
+    });
+  }
 
   ngOnInit(): void {
 
