@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { forkJoin } from 'rxjs';
 import { Product } from '../../models/product.model';
 import { ProductService } from '../../../../core/services/product.service';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -30,44 +31,31 @@ export class SellerDashboardComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.loadProducts();
-    // Added a slight delay so `products` are fetched before checking `belongsToSeller`
-    setTimeout(() => {
-      this.loadSalesMetrics();
-    }, 500);
+    this.loadDashboardData();
   }
 
-  loadProducts() {
+  loadDashboardData() {
     if (!this.authService.currentUser) {
       alert("Please login first!");
       return;
     }
     const sellerId = this.authService.currentUser.id;
-    this.productService.getAllProducts().subscribe((allProducts) => {
-      // Only show products for logged-in seller
-      //const sellerId = this.authService.currentUser!.id;
+
+    forkJoin({
+      allProducts: this.productService.getAllProducts(),
+      orders: this.orderService.getOrdersBySeller(sellerId)
+    }).subscribe(({ allProducts, orders }) => {
+      // 1. Process Products
       this.products = allProducts.filter(p => Number(p.sellerId) === Number(sellerId));
       this.lowStockItems = this.products.filter(p => Number(p.quantity) <= Number(p.stockThreshold));
-    });
-  }
 
-  loadSalesMetrics() {
-    if (!this.authService.currentUser) return;
-    const sellerId = this.authService.currentUser.id;
-
-    this.orderService.getOrdersBySeller(sellerId).subscribe(orders => {
+      // 2. Process Orders
       this.totalOrders = orders.length;
-      this.sellerOrders = orders; // store for display in the Orders tab
+      this.sellerOrders = orders;
 
-      // Sum up the subtotal of the items in each order that belong to this seller
       this.totalSales = 0;
       orders.forEach(o => {
         o.items.forEach(item => {
-          // Need to ensure the item belongs to THIS seller if multiple sellers in one order. 
-          // In our system, the getOrdersBySeller gets all orders that HAVE an item from this seller.
-          // But right now we just count the item subtotal. We should actually filter item by seller ID in a robust system.
-          // But since the OrderItemRequest doesn't easily store seller info on the response, 
-          // we will approximate by doing full subtotal or cross-checking with our product list.
           const belongsToSeller = this.products.some(p => p.id === item.productId);
           if (belongsToSeller) {
             this.totalSales += Number(item.subtotal);
@@ -76,6 +64,20 @@ export class SellerDashboardComponent implements OnInit {
       });
     });
   }
+
+  loadProducts() {
+    if (!this.authService.currentUser) return;
+    const sellerId = this.authService.currentUser.id;
+    this.productService.getAllProducts().subscribe((allProducts) => {
+      this.products = allProducts.filter(p => Number(p.sellerId) === Number(sellerId));
+      this.lowStockItems = this.products.filter(p => Number(p.quantity) <= Number(p.stockThreshold));
+    });
+  }
+
+  loadSalesMetrics() {
+    this.loadDashboardData();
+  }
+
   edit(product: Product) {
     this.selectedProduct = { ...product };
   }
