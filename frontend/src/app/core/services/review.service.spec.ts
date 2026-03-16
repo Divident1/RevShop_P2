@@ -2,12 +2,13 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
 import { ReviewService, Review, ReviewRequest } from './review.service';
+import { API_BASE_URL } from '../config/api-base';
 
 describe('ReviewService', () => {
   let service: ReviewService;
   let httpMock: HttpTestingController;
 
-  const API = '" + (window.location.hostname === "localhost" ? "http://localhost:8080" : "http://" + window.location.hostname + ":8080") + "/api/reviews';
+  const API = `${API_BASE_URL}/reviews`;
 
   const mockReview: Review = {
     id: 1,

@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { API_BASE_URL } from '../config/api-base';
 
 export interface Favorite {
     id: number;
@@ -14,7 +15,7 @@ export interface Favorite {
 })
 export class FavoriteService {
 
-    private API = '" + (window.location.hostname === "localhost" ? "http://localhost:8080" : "http://" + window.location.hostname + ":8080") + "/api/favorites';
+    private readonly API = `${API_BASE_URL}/favorites`;
 
     constructor(private http: HttpClient) { }
 

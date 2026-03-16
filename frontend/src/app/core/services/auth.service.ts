@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { jwtDecode } from 'jwt-decode';
+import { API_BASE_URL } from '../config/api-base';
 
 export interface User {
   id: number;
@@ -14,7 +15,7 @@ export interface User {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
 
-  private baseUrl = "" + (window.location.hostname === "localhost" ? "http://localhost:8080" : "http://" + window.location.hostname + ":8080") + "/api/auth";
+  private readonly baseUrl = `${API_BASE_URL}/auth`;
 
   private _currentUser = new BehaviorSubject<User | null>(null);
   currentUser$ = this._currentUser.asObservable();

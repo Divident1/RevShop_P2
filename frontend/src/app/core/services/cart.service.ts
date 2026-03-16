@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { API_BASE_URL } from '../config/api-base';
 
 export interface CartItemResponse {
   cartItemId: number;
@@ -28,7 +29,7 @@ export interface CartResponse {
 })
 export class CartService {
 
-  private baseUrl = '" + (window.location.hostname === "localhost" ? "http://localhost:8080" : "http://" + window.location.hostname + ":8080") + "/api/cart';
+  private readonly baseUrl = `${API_BASE_URL}/cart`;
 
   // BehaviorSubject to share cart state across components
   private cartSubject = new BehaviorSubject<CartResponse | null>(null);

@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { API_BASE_URL } from '../config/api-base';
 
 export interface ReviewRequest {
     buyerId: number;
@@ -29,7 +30,7 @@ export interface Review {
 })
 export class ReviewService {
 
-    private API = '" + (window.location.hostname === "localhost" ? "http://localhost:8080" : "http://" + window.location.hostname + ":8080") + "/api/reviews';
+    private readonly API = `${API_BASE_URL}/reviews`;
 
     constructor(private http: HttpClient) { }
 

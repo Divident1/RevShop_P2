@@ -2,12 +2,13 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
 import { OrderService, OrderRequest, OrderResponse } from '../services/order.service';
+import { API_BASE_URL } from '../config/api-base';
 
 describe('OrderService', () => {
   let service: OrderService;
   let httpMock: HttpTestingController;
 
-  const API = '" + (window.location.hostname === "localhost" ? "http://localhost:8080" : "http://" + window.location.hostname + ":8080") + "/api/orders';
+  const API = `${API_BASE_URL}/orders`;
 
   const mockOrder: OrderResponse = {
     orderId: 1,

@@ -3,14 +3,15 @@ import { HttpClient } from '@angular/common/http';
 import { Product } from '../../features/seller-product/models/product.model';
 import { Observable, map } from 'rxjs';
 import { AuthService } from './auth.service';
+import { API_BASE_URL } from '../config/api-base';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProductService {
 
-  private baseUrl = '" + (window.location.hostname === "localhost" ? "http://localhost:8080" : "http://" + window.location.hostname + ":8080") + "/api/products';
-  private sellerUrl = '" + (window.location.hostname === "localhost" ? "http://localhost:8080" : "http://" + window.location.hostname + ":8080") + "/api/seller/products';
+  private readonly baseUrl = `${API_BASE_URL}/products`;
+  private readonly sellerUrl = `${API_BASE_URL}/seller/products`;
 
   constructor(
     private http: HttpClient,

@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { API_BASE_URL } from '../config/api-base';
 
 export interface OrderItemRequest {
   productId: number;
@@ -39,7 +40,7 @@ export interface OrderResponse {
 })
 export class OrderService {
 
-  private API = '" + (window.location.hostname === "localhost" ? "http://localhost:8080" : "http://" + window.location.hostname + ":8080") + "/api/orders';
+  private readonly API = `${API_BASE_URL}/orders`;
 
   constructor(private http: HttpClient) {}
 
