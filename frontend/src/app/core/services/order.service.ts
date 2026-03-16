@@ -39,7 +39,7 @@ export interface OrderResponse {
 })
 export class OrderService {
 
-  private API = 'http://localhost:8080/api/orders';
+  private API = '" + (window.location.hostname === "localhost" ? "http://localhost:8080" : "http://" + window.location.hostname + ":8080") + "/api/orders';
 
   constructor(private http: HttpClient) {}
 

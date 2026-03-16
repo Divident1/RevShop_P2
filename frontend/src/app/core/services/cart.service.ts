@@ -28,7 +28,7 @@ export interface CartResponse {
 })
 export class CartService {
 
-  private baseUrl = 'http://localhost:8080/api/cart';
+  private baseUrl = '" + (window.location.hostname === "localhost" ? "http://localhost:8080" : "http://" + window.location.hostname + ":8080") + "/api/cart';
 
   // BehaviorSubject to share cart state across components
   private cartSubject = new BehaviorSubject<CartResponse | null>(null);

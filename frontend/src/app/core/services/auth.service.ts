@@ -14,7 +14,7 @@ export interface User {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
 
-  private baseUrl = "http://localhost:8080/api/auth";
+  private baseUrl = "" + (window.location.hostname === "localhost" ? "http://localhost:8080" : "http://" + window.location.hostname + ":8080") + "/api/auth";
 
   private _currentUser = new BehaviorSubject<User | null>(null);
   currentUser$ = this._currentUser.asObservable();
@@ -57,6 +57,14 @@ export class AuthService {
   register(data: any) {
     return this.http.post(
       this.baseUrl + "/register",
+      data,
+      { responseType: 'text' }
+    );
+  }
+
+  forgotPassword(data: { email: string }): Observable<string> {
+    return this.http.post(
+      this.baseUrl + "/forgot-password",
       data,
       { responseType: 'text' }
     );

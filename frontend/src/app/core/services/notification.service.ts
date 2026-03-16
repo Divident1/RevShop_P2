@@ -15,7 +15,7 @@ export interface Notification {
 })
 export class NotificationService {
 
-    private baseUrl = 'http://localhost:8080/api/notifications';
+    private baseUrl = '" + (window.location.hostname === "localhost" ? "http://localhost:8080" : "http://" + window.location.hostname + ":8080") + "/api/notifications';
 
     constructor(private http: HttpClient) { }
 

@@ -29,7 +29,7 @@ export interface Review {
 })
 export class ReviewService {
 
-    private API = 'http://localhost:8080/api/reviews';
+    private API = '" + (window.location.hostname === "localhost" ? "http://localhost:8080" : "http://" + window.location.hostname + ":8080") + "/api/reviews';
 
     constructor(private http: HttpClient) { }
 

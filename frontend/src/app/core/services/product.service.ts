@@ -9,8 +9,8 @@ import { AuthService } from './auth.service';
 })
 export class ProductService {
 
-  private baseUrl = 'http://localhost:8080/api/products';
-  private sellerUrl = 'http://localhost:8080/api/seller/products';
+  private baseUrl = '" + (window.location.hostname === "localhost" ? "http://localhost:8080" : "http://" + window.location.hostname + ":8080") + "/api/products';
+  private sellerUrl = '" + (window.location.hostname === "localhost" ? "http://localhost:8080" : "http://" + window.location.hostname + ":8080") + "/api/seller/products';
 
   constructor(
     private http: HttpClient,

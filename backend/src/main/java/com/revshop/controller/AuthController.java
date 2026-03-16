@@ -34,9 +34,9 @@ public class AuthController {
     }
 
     @PostMapping("/forgot-password")
-    public String forgotPassword(@RequestBody ForgotPasswordRequest request) {
-        authService.forgotPassword(request);
-        return "Reset token generated";
+    public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordRequest request) {
+        String resetToken = authService.forgotPassword(request);
+        return ResponseEntity.ok(resetToken);
     }
 
     // RESET PASSWORD

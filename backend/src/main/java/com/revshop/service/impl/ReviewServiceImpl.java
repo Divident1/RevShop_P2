@@ -72,7 +72,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public List<Review> getReviewsBySeller(Long sellerId) {
-        return reviewRepository.findByProductSeller_IdOrderByCreatedAtDesc(sellerId);
+        return reviewRepository.findBySellerId(sellerId);
     }
 
     @Override

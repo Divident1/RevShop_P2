@@ -11,7 +11,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     List<Review> findByProductIdOrderByCreatedAtDesc(Long productId);
 
-    List<Review> findByProductSeller_IdOrderByCreatedAtDesc(Long sellerId);
+    @Query("SELECT r FROM Review r WHERE r.product.seller.id = :sellerId ORDER BY r.createdAt DESC")
+    List<Review> findBySellerId(@org.springframework.data.repository.query.Param("sellerId") Long sellerId);
 
     List<Review> findByBuyerIdOrderByCreatedAtDesc(Long buyerId);
 

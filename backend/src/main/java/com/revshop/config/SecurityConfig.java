@@ -29,6 +29,7 @@ public class SecurityConfig {
                                                 .requestMatchers("/api/favorites/**").permitAll()
                                                 .requestMatchers("/api/cart/**").permitAll()
                                                 .requestMatchers("/api/notifications/**").permitAll()
+                                                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                                                 .anyRequest().authenticated())
                                 .cors(cors -> {
                                 })

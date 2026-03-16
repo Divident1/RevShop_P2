@@ -47,6 +47,31 @@ export class AuthPageComponent implements OnInit {
     this.error = '';
   }
 
+  /**
+   * Extracts a clean, user-friendly message from an HTTP error response.
+   * The backend returns JSON like: {"status":401,"error":"Unauthorized","message":"..."}
+   * Since responseType is 'text', err.error is the raw JSON string.
+   */
+  private extractErrorMessage(err: any, fallback: string): string {
+    try {
+      if (typeof err.error === 'string') {
+        const parsed = JSON.parse(err.error);
+        if (parsed && parsed.message) {
+          return parsed.message;
+        }
+      }
+      if (typeof err.error === 'object' && err.error?.message) {
+        return err.error.message;
+      }
+    } catch (e) {
+      // err.error was a plain string (not JSON), use it directly
+      if (typeof err.error === 'string' && err.error.length > 0 && err.error.length < 200) {
+        return err.error;
+      }
+    }
+    return fallback;
+  }
+
   login() {
 
     if (this.loginForm.invalid) {
@@ -69,7 +94,7 @@ export class AuthPageComponent implements OnInit {
           }
         },
         error: (err: any) => {
-          this.error = typeof err.error === 'string' ? err.error : "Login failed";
+          this.error = this.extractErrorMessage(err, 'Invalid email or password. Please try again.');
           this.message = '';
         }
       });
@@ -90,7 +115,7 @@ export class AuthPageComponent implements OnInit {
           this.isLogin = true;
         },
         error: (err: any) => {
-          this.error = typeof err.error === 'string' ? err.error : "Registration failed";
+          this.error = this.extractErrorMessage(err, 'Registration failed. Please try again.');
           this.message = '';
         }
       });

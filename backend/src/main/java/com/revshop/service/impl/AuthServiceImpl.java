@@ -67,17 +67,48 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void forgotPassword(ForgotPasswordRequest request) {
+    public String forgotPassword(ForgotPasswordRequest request) {
         User user = findUserByEmail(request.getEmail());
-        user.setResetToken("dummy-reset-token");
+
+        // Generate a JWT-based reset token with 15-minute expiry
+        String resetToken = JwtUtil.generateResetToken(user.getEmail());
+
+        // Store the token in the database for verification during reset
+        user.setResetToken(resetToken);
         userRepository.save(user);
+
+        return resetToken;
     }
 
     @Override
     public String resetPassword(ResetPasswordRequest request) {
+        // 1. Validate the reset token
+        String token = request.getToken();
+        if (token == null || token.isEmpty()) {
+            throw new InvalidCredentialsException("Reset token is required.");
+        }
+
+        if (!JwtUtil.validateResetToken(token)) {
+            throw new InvalidCredentialsException("Invalid or expired reset token. Please request a new one.");
+        }
+
+        // 2. Extract email from the token and verify it matches the request
+        String emailFromToken = JwtUtil.extractEmailFromResetToken(token);
+        if (!emailFromToken.equals(request.getEmail())) {
+            throw new InvalidCredentialsException("Token does not match the provided email.");
+        }
+
+        // 3. Find the user and verify the stored reset token matches
         User user = findUserByEmail(request.getEmail());
+        if (user.getResetToken() == null || !user.getResetToken().equals(token)) {
+            throw new InvalidCredentialsException("This reset token has already been used or is invalid.");
+        }
+
+        // 4. Reset the password and clear the token
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setResetToken(null); // Invalidate the token after use
         userRepository.save(user);
+
         return "Password reset successful";
     }
 

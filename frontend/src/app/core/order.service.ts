@@ -26,7 +26,7 @@ export interface OrderResponse {
   providedIn: 'root'
 })
 export class OrderService {
-  private readonly api = 'http://localhost:8080/api/orders';
+  private readonly api = '" + (window.location.hostname === "localhost" ? "http://localhost:8080" : "http://" + window.location.hostname + ":8080") + "/api/orders';
 
   constructor(private http: HttpClient) { }
 

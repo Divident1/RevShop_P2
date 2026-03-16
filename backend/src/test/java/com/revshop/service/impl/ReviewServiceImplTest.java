@@ -271,7 +271,7 @@ class ReviewServiceImplTest {
     @Test
     @DisplayName("GetReviewsBySeller - should return seller product reviews")
     void getReviewsBySeller_Success() {
-        when(reviewRepository.findByProductSeller_IdOrderByCreatedAtDesc(2L))
+        when(reviewRepository.findBySellerId(2L))
                 .thenReturn(List.of(review));
 
         List<Review> results = reviewService.getReviewsBySeller(2L);
