@@ -21,4 +21,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     // Kavya's seller queries
     List<Product> findBySeller_Id(Long sellerId);
+
+    List<Product> findByActiveTrue();
 }

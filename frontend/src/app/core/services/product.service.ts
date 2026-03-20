@@ -35,7 +35,7 @@ export class ProductService {
     const url = sellerId != null
       ? `${this.baseUrl}/${id}?sellerId=${sellerId}`
       : `${this.baseUrl}/${id}`;
-    return this.http.delete(url);
+    return this.http.delete(url, { responseType: 'text' });
   }
 
   getAllProducts(): Observable<Product[]> {
@@ -59,6 +59,7 @@ export class ProductService {
       mrp: product.mrp,
       discountPercentage: product.discountPercentage,
       category: product.category,
+      categoryName: product.categoryName ?? product.category?.name ?? '',
       quantity: product.quantity,
       sellerId: product.sellerId ?? product.seller?.id ?? 0,
       active: product.active,

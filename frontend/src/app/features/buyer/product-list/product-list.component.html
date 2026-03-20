@@ -62,7 +62,7 @@
       </div>
 
       <div class="product-info">
-        <div class="category-tag">{{ p.categoryName || 'Electronics' }}</div>
+        <div class="category-tag">{{ p.categoryName || p.category?.name || p.category }}</div>
         <a [routerLink]="['/buyer/product', p.id]" class="product-name-link">
           <h3 class="product-name">{{p.name}}</h3>
         </a>
