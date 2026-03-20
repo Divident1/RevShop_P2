@@ -7,6 +7,7 @@ import com.revshop.exception.ResourceNotFoundException;
 import com.revshop.model.Role;
 import com.revshop.model.User;
 import com.revshop.repository.UserRepository;
+import com.revshop.util.JwtUtil;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -147,9 +148,14 @@ class AuthServiceImplTest {
     @Test
     @DisplayName("ResetPassword - should reset password successfully")
     void resetPassword_Success() {
+        // Generate a real valid reset token and set it on the user
+        String resetToken = JwtUtil.generateResetToken("kavya@revshop.com");
+        testUser.setResetToken(resetToken);
+
         ResetPasswordRequest request = new ResetPasswordRequest();
         request.setEmail("kavya@revshop.com");
         request.setNewPassword("newPassword123");
+        request.setToken(resetToken);
 
         when(userRepository.findByEmail("kavya@revshop.com")).thenReturn(Optional.of(testUser));
         when(passwordEncoder.encode("newPassword123")).thenReturn("newEncodedPassword");
@@ -164,9 +170,13 @@ class AuthServiceImplTest {
     @Test
     @DisplayName("ResetPassword - should throw exception when user not found")
     void resetPassword_UserNotFound() {
+        // Generate a valid token for the unknown email so it passes JWT validation
+        String resetToken = JwtUtil.generateResetToken("unknown@revshop.com");
+
         ResetPasswordRequest request = new ResetPasswordRequest();
         request.setEmail("unknown@revshop.com");
         request.setNewPassword("newPassword123");
+        request.setToken(resetToken);
 
         when(userRepository.findByEmail("unknown@revshop.com")).thenReturn(Optional.empty());
 

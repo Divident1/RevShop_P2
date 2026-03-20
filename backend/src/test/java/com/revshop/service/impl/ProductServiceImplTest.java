@@ -202,7 +202,7 @@ class ProductServiceImplTest {
         product2.setId(2L);
         product2.setName("Test Laptop");
 
-        when(productRepository.findAll()).thenReturn(Arrays.asList(product, product2));
+        when(productRepository.findByActiveTrue()).thenReturn(Arrays.asList(product, product2));
 
         List<Product> results = productService.getAllProducts();
 

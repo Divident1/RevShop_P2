@@ -58,7 +58,7 @@ export class ProductService {
       price: product.price,
       mrp: product.mrp,
       discountPercentage: product.discountPercentage,
-      category: product.category,
+      category: product.categoryName ?? product.category?.name ?? product.category ?? '',
       categoryName: product.categoryName ?? product.category?.name ?? '',
       quantity: product.quantity,
       sellerId: product.sellerId ?? product.seller?.id ?? 0,
