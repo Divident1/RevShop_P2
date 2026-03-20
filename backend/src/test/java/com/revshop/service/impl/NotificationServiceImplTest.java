@@ -44,9 +44,7 @@ class NotificationServiceImplTest {
         notification2.setCreatedAt(LocalDateTime.now().minusHours(1));
     }
 
-    // ══════════════════════════════════════════════════
-    // createNotification
-    // ══════════════════════════════════════════════════
+    // --- createNotification ---
 
     @Test
     @DisplayName("CreateNotification - should save notification successfully")
@@ -74,9 +72,7 @@ class NotificationServiceImplTest {
         verify(notificationRepository, times(1)).save(any(Notification.class));
     }
 
-    // ══════════════════════════════════════════════════
-    // getUserNotifications
-    // ══════════════════════════════════════════════════
+    // --- getUserNotifications ---
 
     @Test
     @DisplayName("GetUserNotifications - should return all notifications for user")
@@ -101,9 +97,7 @@ class NotificationServiceImplTest {
         assertTrue(results.isEmpty());
     }
 
-    // ══════════════════════════════════════════════════
-    // getUnreadNotifications
-    // ══════════════════════════════════════════════════
+    // --- getUnreadNotifications ---
 
     @Test
     @DisplayName("GetUnreadNotifications - should return only unread notifications")
@@ -129,9 +123,7 @@ class NotificationServiceImplTest {
         assertTrue(results.isEmpty());
     }
 
-    // ══════════════════════════════════════════════════
-    // markAsRead
-    // ══════════════════════════════════════════════════
+    // --- markAsRead ---
 
     @Test
     @DisplayName("MarkAsRead - should mark notification as read")

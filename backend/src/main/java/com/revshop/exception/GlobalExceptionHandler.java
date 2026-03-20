@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
- * ═══════════════════════════════════════════════════════════════════════
+ *
  * Global Exception Handler — centralised error handling for all controllers.
  * Returns a consistent {@link ErrorResponse} for every error type.
- * ═══════════════════════════════════════════════════════════════════════
+ *
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {

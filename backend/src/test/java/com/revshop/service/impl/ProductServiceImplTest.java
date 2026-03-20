@@ -71,9 +71,7 @@ class ProductServiceImplTest {
         product.setSeller(seller);
     }
 
-    // ══════════════════════════════════════════════════════════════════
-    // Add Product Tests
-    // ══════════════════════════════════════════════════════════════════
+    // --- Add Product Tests ---
 
     @Test
     @DisplayName("AddProduct - should add product successfully")
@@ -125,9 +123,7 @@ class ProductServiceImplTest {
                 () -> productService.addProduct(request));
     }
 
-    // ══════════════════════════════════════════════════════════════════
-    // Update Product Tests
-    // ══════════════════════════════════════════════════════════════════
+    // --- Update Product Tests ---
 
     @Test
     @DisplayName("UpdateProduct - should update product successfully")
@@ -166,9 +162,7 @@ class ProductServiceImplTest {
                 () -> productService.updateProduct(1L, request));
     }
 
-    // ══════════════════════════════════════════════════════════════════
-    // Delete Product Tests
-    // ══════════════════════════════════════════════════════════════════
+    // --- Delete Product Tests ---
 
     @Test
     @DisplayName("DeleteProduct - should soft-delete product successfully")
@@ -191,9 +185,7 @@ class ProductServiceImplTest {
                 () -> productService.deleteProduct(1L, 999L));
     }
 
-    // ══════════════════════════════════════════════════════════════════
-    // Get All Products Test
-    // ══════════════════════════════════════════════════════════════════
+    // --- Get All Products Test ---
 
     @Test
     @DisplayName("GetAllProducts - should return all products")
@@ -209,9 +201,7 @@ class ProductServiceImplTest {
         assertEquals(2, results.size());
     }
 
-    // ══════════════════════════════════════════════════════════════════
-    // Set Stock Threshold Tests
-    // ══════════════════════════════════════════════════════════════════
+    // --- Set Stock Threshold Tests ---
 
     @Test
     @DisplayName("SetStockThreshold - should update threshold successfully")
@@ -229,9 +219,7 @@ class ProductServiceImplTest {
         verify(productRepository, times(1)).save(any(Product.class));
     }
 
-    // ══════════════════════════════════════════════════════════════════
-    // Get Product Details Tests
-    // ══════════════════════════════════════════════════════════════════
+    // --- Get Product Details Tests ---
 
     @Test
     @DisplayName("GetProductDetails - should return product DTO")
@@ -254,9 +242,7 @@ class ProductServiceImplTest {
                 () -> productService.getProductDetails(999L));
     }
 
-    // ══════════════════════════════════════════════════════════════════
-    // Search Products Test
-    // ══════════════════════════════════════════════════════════════════
+    // --- Search Products Test ---
 
     @Test
     @DisplayName("SearchProducts - should return matching products")

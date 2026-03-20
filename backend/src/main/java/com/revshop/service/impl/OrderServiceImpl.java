@@ -35,9 +35,7 @@ public class OrderServiceImpl implements OrderService {
         this.notificationService = notificationService;
     }
 
-    // ══════════════════════════════════════════════════════════════════
-    // Place Order
-    // ══════════════════════════════════════════════════════════════════
+    // --- Place Order ---
 
     @Override
     @Transactional
@@ -71,14 +69,14 @@ public class OrderServiceImpl implements OrderService {
             // Notify Seller
             notificationService.createNotification(
                     product.getSeller().getId(),
-                    "🎉 New Order Received! Someone just bought " + itemRequest.getQuantity() + "x of your '"
+                    "New Order Received! Someone just bought " + itemRequest.getQuantity() + "x of your '"
                             + product.getName() + "'.");
 
             // Low Stock Alert
             if (product.getQuantity() <= product.getStockThreshold()) {
                 notificationService.createNotification(
                         product.getSeller().getId(),
-                        "🚨 LOW STOCK ALERT: " + product.getName() + " only has " + product.getQuantity() + " left!");
+                        "LOW STOCK ALERT: " + product.getName() + " only has " + product.getQuantity() + " left!");
             }
         }
 
@@ -88,15 +86,13 @@ public class OrderServiceImpl implements OrderService {
         // Notify Buyer
         notificationService.createNotification(
                 buyer.getId(),
-                "✅ Thank you for your purchase! Your Order #" + savedOrder.getId()
+                "Thank you for your purchase! Your Order #" + savedOrder.getId()
                         + " has been placed successfully and given to the seller.");
 
         return mapToResponse(savedOrder);
     }
 
-    // ══════════════════════════════════════════════════════════════════
-    // Get Orders
-    // ══════════════════════════════════════════════════════════════════
+    // --- Get Orders ---
 
     @Override
     public List<OrderResponse> getOrdersByBuyer(Long buyerId) {
@@ -120,9 +116,7 @@ public class OrderServiceImpl implements OrderService {
         return mapToResponse(order);
     }
 
-    // ══════════════════════════════════════════════════════════════════
-    // Update & Cancel
-    // ══════════════════════════════════════════════════════════════════
+    // --- Update & Cancel ---
 
     @Override
     @Transactional
@@ -136,11 +130,11 @@ public class OrderServiceImpl implements OrderService {
         // Notify Buyer about Status change
         String customMessage = "Update on Order #" + order.getId() + ": Status changed to " + status.name();
         if (status == OrderStatus.SHIPPED) {
-            customMessage = "📦 Good News! Your Order #" + order.getId() + " has been SHIPPED.";
+            customMessage = "Your Order #" + order.getId() + " has been SHIPPED.";
         } else if (status == OrderStatus.DELIVERED) {
-            customMessage = "🏡 Delivered! Your Order #" + order.getId() + " has arrived safely. Thanks for shopping!";
+            customMessage = "Your Order #" + order.getId() + " has arrived safely. Thanks for shopping!";
         } else if (status == OrderStatus.CANCELLED) {
-            customMessage = "❌ Order #" + order.getId() + " has been CANCELLED.";
+            customMessage = "Order #" + order.getId() + " has been CANCELLED.";
         }
 
         notificationService.createNotification(order.getBuyer().getId(), customMessage);
@@ -169,9 +163,7 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(order);
     }
 
-    // ══════════════════════════════════════════════════════════════════
-    // Checkout & Payment
-    // ══════════════════════════════════════════════════════════════════
+    // --- Checkout & Payment ---
 
     @Override
     public OrderResponseDto checkout(CheckoutRequestDto request) {
@@ -227,9 +219,7 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
-    // ══════════════════════════════════════════════════════════════════
-    // DRY Helpers — reusable lookup & validation methods
-    // ══════════════════════════════════════════════════════════════════
+    // --- DRY Helpers — reusable lookup & validation methods ---
 
     private User findUserById(Long userId) {
         return userRepository.findById(userId)

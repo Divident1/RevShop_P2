@@ -32,9 +32,7 @@ public class CartServiceImpl implements CartService {
         this.userRepository = userRepository;
     }
 
-    // ══════════════════════════════════════════════════════════════════════
-    // Add Product to Cart
-    // ══════════════════════════════════════════════════════════════════════
+    // --- Add Product to Cart ---
 
     @Override
     @Transactional
@@ -66,9 +64,7 @@ public class CartServiceImpl implements CartService {
         return mapToResponse(savedCart);
     }
 
-    // ══════════════════════════════════════════════════════════════════════
-    // Update Cart Quantity
-    // ══════════════════════════════════════════════════════════════════════
+    // --- Update Cart Quantity ---
 
     @Override
     @Transactional
@@ -84,9 +80,7 @@ public class CartServiceImpl implements CartService {
         return mapToResponse(savedCart);
     }
 
-    // ══════════════════════════════════════════════════════════════════════
-    // Remove Product & View Cart
-    // ══════════════════════════════════════════════════════════════════════
+    // --- Remove Product & View Cart ---
 
     @Override
     @Transactional
@@ -117,9 +111,7 @@ public class CartServiceImpl implements CartService {
         cartRepository.save(cart);
     }
 
-    // ══════════════════════════════════════════════════════════════════════
-    // DRY Helpers
-    // ══════════════════════════════════════════════════════════════════════
+    // --- DRY Helpers ---
 
     private User findUserById(Long userId) {
         return userRepository.findById(userId)

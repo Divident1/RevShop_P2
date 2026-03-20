@@ -32,9 +32,7 @@ public class ProductServiceImpl implements ProductService {
         this.categoryRepository = categoryRepository;
     }
 
-    // ══════════════════════════════════════════════════════════════════════
-    // Seller Methods
-    // ══════════════════════════════════════════════════════════════════════
+    // --- Seller Methods ---
 
     public Product addProduct(ProductRequest request) {
 
@@ -111,9 +109,7 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findByActiveTrue();
     }
 
-    // ══════════════════════════════════════════════════════════════════════
-    // Buyer Methods
-    // ══════════════════════════════════════════════════════════════════════
+    // --- Buyer Methods ---
 
     @Override
     public Page<ProductDto> getProductsByCategory(Long categoryId, int page, int size) {
@@ -138,9 +134,7 @@ public class ProductServiceImpl implements ProductService {
         return ProductMapper.mapToDto(product);
     }
 
-    // ══════════════════════════════════════════════════════════════════════
-    // DRY Helpers
-    // ══════════════════════════════════════════════════════════════════════
+    // --- DRY Helpers ---
 
     private User findUserById(Long userId) {
         return userRepository.findById(userId)

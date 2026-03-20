@@ -39,9 +39,7 @@ class LoggingAspectTest {
         // No additional setup required — mocks are initialized by Mockito
     }
 
-    // ══════════════════════════════════════════════════════════════════
-    // @Around — Service Layer Tests
-    // ══════════════════════════════════════════════════════════════════
+    // --- @Around — Service Layer Tests ---
 
     @Test
     @DisplayName("logAroundService - should proceed and return result")
@@ -87,9 +85,7 @@ class LoggingAspectTest {
         assertEquals("updated", result);
     }
 
-    // ══════════════════════════════════════════════════════════════════
-    // @Before & @AfterReturning — Controller Layer Tests
-    // ══════════════════════════════════════════════════════════════════
+    // --- @Before & @AfterReturning — Controller Layer Tests ---
 
     @Test
     @DisplayName("logBeforeController - should execute without error")
@@ -112,9 +108,7 @@ class LoggingAspectTest {
         assertDoesNotThrow(() -> loggingAspect.logAfterController(joinPoint, "response"));
     }
 
-    // ══════════════════════════════════════════════════════════════════
-    // @AfterThrowing — Exception Logging Tests
-    // ══════════════════════════════════════════════════════════════════
+    // --- @AfterThrowing — Exception Logging Tests ---
 
     @Test
     @DisplayName("logControllerException - should log exception without error")

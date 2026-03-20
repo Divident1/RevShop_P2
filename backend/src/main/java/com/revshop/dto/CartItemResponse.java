@@ -32,7 +32,7 @@ public class CartItemResponse {
         this.subtotal = subtotal;
     }
 
-    // ═══════════ GETTERS & SETTERS ═══════════
+    // ---
 
     public Long getCartItemId() {
         return cartItemId;

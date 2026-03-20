@@ -23,7 +23,7 @@ public class CartItem {
     @Column(nullable = false)
     private Integer quantity;
 
-    // ═══════════ GETTERS & SETTERS ═══════════
+    // ---
 
     public Long getId() {
         return id;
@@ -57,7 +57,7 @@ public class CartItem {
         this.quantity = quantity;
     }
 
-    // ═══════════ HELPER METHODS ═══════════
+    // ---
 
     public Double getSubtotal() {
         return product.getPrice() * quantity;

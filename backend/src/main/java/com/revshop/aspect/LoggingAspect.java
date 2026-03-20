@@ -10,9 +10,9 @@ import org.springframework.stereotype.Component;
 import java.util.Arrays;
 
 /**
- * ═══════════════════════════════════════════════════════════════════════
+ *
  * LoggingAspect — Cross-cutting concern for application-wide logging
- * ═══════════════════════════════════════════════════════════════════════
+ *
  *
  * Uses Spring AOP to automatically log:
  * • Method entry (with arguments)
@@ -27,9 +27,7 @@ import java.util.Arrays;
 @Component
 public class LoggingAspect {
 
-    // ══════════════════════════════════════════════════════════════════
-    // Pointcut Definitions
-    // ══════════════════════════════════════════════════════════════════
+    // --- Pointcut Definitions ---
 
     /** Matches all methods in the service.impl package */
     @Pointcut("execution(* com.revshop.service.impl.*.*(..))")
@@ -46,9 +44,7 @@ public class LoggingAspect {
     public void repositoryLayer() {
     }
 
-    // ══════════════════════════════════════════════════════════════════
-    // Service Layer — @Around for entry + exit + execution time
-    // ══════════════════════════════════════════════════════════════════
+    // --- Service Layer — @Around for entry + exit + execution time ---
 
     /**
      * Logs method entry, exit, return value, and execution time
@@ -64,7 +60,7 @@ public class LoggingAspect {
         Object[] args = joinPoint.getArgs();
 
         // ── Entry ──
-        logger.info("➡  ENTER  {}.{}() | Args: {}",
+        logger.info("[ENTER] {}.{}() | Args: {}",
                 className, methodName, Arrays.toString(args));
 
         long startTime = System.currentTimeMillis();
@@ -74,7 +70,7 @@ public class LoggingAspect {
             long elapsed = System.currentTimeMillis() - startTime;
 
             // ── Exit ──
-            logger.info("✅  EXIT   {}.{}() | Time: {}ms | Return: {}",
+            logger.info("[EXIT] {}.{}() | Time: {}ms | Return: {}",
                     className, methodName, elapsed, result);
 
             return result;
@@ -83,7 +79,7 @@ public class LoggingAspect {
             long elapsed = System.currentTimeMillis() - startTime;
 
             // ── Exception ──
-            logger.error("❌  ERROR  {}.{}() | Time: {}ms | Exception: {} - {}",
+            logger.error("[ERROR] {}.{}() | Time: {}ms | Exception: {} - {}",
                     className, methodName, elapsed,
                     ex.getClass().getSimpleName(), ex.getMessage());
 
@@ -91,9 +87,7 @@ public class LoggingAspect {
         }
     }
 
-    // ══════════════════════════════════════════════════════════════════
-    // Controller Layer — @Before and @AfterReturning
-    // ══════════════════════════════════════════════════════════════════
+    // --- Controller Layer — @Before and @AfterReturning ---
 
     /**
      * Logs every incoming request hitting a controller method.
@@ -141,9 +135,7 @@ public class LoggingAspect {
                 ex.getClass().getSimpleName(), ex.getMessage());
     }
 
-    // ══════════════════════════════════════════════════════════════════
-    // Repository Layer — @AfterThrowing only (keep it lightweight)
-    // ══════════════════════════════════════════════════════════════════
+    // --- Repository Layer — @AfterThrowing only (keep it lightweight) ---
 
     /**
      * Logs any exception thrown from a repository (database) call.
@@ -156,7 +148,7 @@ public class LoggingAspect {
         String methodName = joinPoint.getSignature().getName();
         String className = joinPoint.getTarget().getClass().getSimpleName();
 
-        logger.error("💾  DB ERROR  {}.{}() | {} : {}",
+        logger.error("[DB ERROR] {}.{}() | {} : {}",
                 className, methodName,
                 ex.getClass().getSimpleName(), ex.getMessage());
     }
